@@ -1,0 +1,44 @@
+{
+  "name": "y",
+  "version": "1.0.0",
+  "description": "Diaspora Legal Consultancy",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Emmy-ck/diaspora-legal.git"
+  },
+  "keywords": [
+    "Diaspora",
+    "Legal",
+    "Support",
+    "Services"
+  ],
+  "author": "Emmy-ck",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Emmy-ck/diaspora-legal/issues"
+  },
+  "homepage": "https://github.com/Emmy-ck/diaspora-legal#readme",
+  "dependencies": {
+    "axios": "^1.18.1",
+    "bcrypt": "^6.0.0",
+    "compression": "^1.8.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-validator": "^7.3.2",
+    "helmet": "^8.2.0",
+    "jsonwebtoken": "^9.0.3",
+    "morgan": "^1.11.0",
+    "multer": "^2.2.0",
+    "mysql2": "^3.22.5",
+    "nodemailer": "^9.0.3",
+    "sequelize": "^6.37.8",
+    "socket.io": "^4.8.3",
+    "uuid": "^14.0.1"
+  }
+}
