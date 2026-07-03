@@ -1,0 +1,460 @@
+/* ==========================================================================
+   DLSS — Forms
+   ==========================================================================
+   Labels, text inputs, textareas, selects, checkboxes, radios, switches,
+   input groups, file inputs, and validation states. Depends on variables.css.
+   ========================================================================== */
+
+/* ==========================================================================
+   1. FORM STRUCTURE
+   ========================================================================== */
+
+.form-group {
+  margin-bottom: var(--space-5);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-4);
+}
+
+.form-label {
+  display: inline-block;
+  margin-bottom: var(--space-2);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.form-label .required {
+  color: var(--color-error);
+  margin-left: var(--space-1);
+}
+
+.form-text {
+  display: block;
+  margin-top: var(--space-2);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+fieldset {
+  min-width: 0;
+  margin: 0 0 var(--space-6);
+  padding: 0;
+  border: 0;
+}
+
+.form-legend {
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--color-border-light);
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+}
+
+/* ==========================================================================
+   2. TEXT INPUTS, TEXTAREAS & SELECTS
+   ========================================================================== */
+
+.form-control,
+.form-select {
+  display: block;
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.form-control::placeholder {
+  color: var(--color-text-muted);
+  opacity: 1;
+}
+
+.form-control:hover:not(:disabled):not(:focus),
+.form-select:hover:not(:disabled):not(:focus) {
+  border-color: var(--color-border-dark);
+}
+
+.form-control:focus,
+.form-select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(10, 35, 64, 0.12);
+}
+
+.form-control:disabled,
+.form-select:disabled,
+.form-control.is-disabled {
+  background-color: var(--color-bg-muted);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+  opacity: 0.75;
+}
+
+.form-control[readonly] {
+  background-color: var(--color-bg-muted);
+}
+
+textarea.form-control {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.form-control-sm {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-sm);
+}
+
+.form-control-lg {
+  padding: var(--space-4) var(--space-5);
+  font-size: var(--font-size-md);
+}
+
+/* --- Select boxes --- */
+.form-select {
+  padding-right: var(--space-10);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%230A2340' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--space-4) center;
+  background-size: 12px 8px;
+  cursor: pointer;
+}
+
+.form-select:disabled {
+  cursor: not-allowed;
+}
+
+.form-select[multiple] {
+  padding-right: var(--space-4);
+  background-image: none;
+}
+
+/* ==========================================================================
+   3. CHECKBOXES & RADIO BUTTONS
+   ========================================================================== */
+
+.form-check {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.form-check-input {
+  flex-shrink: 0;
+  appearance: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.125rem;
+  background-color: var(--color-bg-surface);
+  border: 1.5px solid var(--color-border-dark);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.form-check-input[type='checkbox'] {
+  border-radius: var(--radius-sm);
+}
+
+.form-check-input[type='radio'] {
+  border-radius: var(--radius-full);
+}
+
+.form-check-input:hover:not(:disabled) {
+  border-color: var(--color-primary);
+}
+
+.form-check-input:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+.form-check-input:checked {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.form-check-input[type='checkbox']:checked {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 10' fill='none'%3E%3Cpath d='M1 5L4.5 8.5L11 1.5' stroke='%23FFFFFF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 0.7rem;
+}
+
+.form-check-input[type='radio']:checked {
+  position: relative;
+}
+
+.form-check-input[type='radio']:checked::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 0.4375rem;
+  height: 0.4375rem;
+  border-radius: var(--radius-full);
+  background-color: var(--color-white);
+}
+
+.form-check-input:disabled {
+  background-color: var(--color-bg-muted);
+  border-color: var(--color-border);
+  cursor: not-allowed;
+}
+
+.form-check-input:disabled:checked {
+  background-color: var(--color-gray-400);
+  border-color: var(--color-gray-400);
+}
+
+.form-check-label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+
+.form-check-input:disabled ~ .form-check-label {
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+.form-check-inline {
+  display: inline-flex;
+  margin-right: var(--space-5);
+}
+
+/* --- Switch / toggle variant --- */
+.form-switch .form-check-input {
+  width: 2.5rem;
+  height: 1.375rem;
+  border-radius: var(--radius-full);
+  background-color: var(--color-gray-300);
+  border-color: var(--color-gray-300);
+  position: relative;
+}
+
+.form-switch .form-check-input::after {
+  content: '';
+  position: absolute;
+  top: 1.5px;
+  left: 1.5px;
+  width: 1.125rem;
+  height: 1.125rem;
+  background-color: var(--color-white);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-fast);
+}
+
+.form-switch .form-check-input:checked {
+  background-color: var(--color-success);
+  border-color: var(--color-success);
+}
+
+.form-switch .form-check-input:checked::after {
+  transform: translateX(1.125rem);
+}
+
+/* ==========================================================================
+   4. INPUT GROUPS (icons / prefixed-suffixed text)
+   ========================================================================== */
+
+.input-group {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+}
+
+.input-group .form-control {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.input-group .form-control:not(:first-child) {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.input-group .form-control:not(:last-child) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.input-group-text {
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-4);
+  background-color: var(--color-bg-muted);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+}
+
+.input-group-text:first-child {
+  border-right: 0;
+  border-top-left-radius: var(--radius-md);
+  border-bottom-left-radius: var(--radius-md);
+}
+
+.input-group-text:last-child {
+  border-left: 0;
+  border-top-right-radius: var(--radius-md);
+  border-bottom-right-radius: var(--radius-md);
+}
+
+/* ==========================================================================
+   5. FILE INPUT
+   ========================================================================== */
+
+.form-file {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--color-bg-surface);
+  border: 1.5px dashed var(--color-border-dark);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.form-file:hover {
+  border-color: var(--color-primary);
+  background-color: var(--color-bg-muted);
+}
+
+.form-file input[type='file'] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.form-file-label {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+}
+
+/* ==========================================================================
+   6. VALIDATION STATES
+   ========================================================================== */
+
+.form-control.is-valid,
+.form-select.is-valid {
+  border-color: var(--color-success);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M13.5 4.5L6.5 11.5L2.5 7.5' stroke='%231E8E5A' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--space-4) center;
+  background-size: 16px 16px;
+  padding-right: var(--space-10);
+}
+
+.form-control.is-valid:focus,
+.form-select.is-valid:focus {
+  border-color: var(--color-success);
+  box-shadow: 0 0 0 3px rgba(30, 142, 90, 0.15);
+}
+
+.form-control.is-invalid,
+.form-select.is-invalid {
+  border-color: var(--color-error);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Ccircle cx='8' cy='8' r='6.5' stroke='%23D64546' stroke-width='1.5'/%3E%3Cpath d='M8 4.5V8.5' stroke='%23D64546' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='8' cy='11' r='0.9' fill='%23D64546'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--space-4) center;
+  background-size: 16px 16px;
+  padding-right: var(--space-10);
+}
+
+.form-control.is-invalid:focus,
+.form-select.is-invalid:focus {
+  border-color: var(--color-error);
+  box-shadow: 0 0 0 3px rgba(214, 69, 70, 0.15);
+}
+
+.form-select[multiple].is-valid,
+.form-select[multiple].is-invalid {
+  background-image: none;
+  padding-right: var(--space-4);
+}
+
+.valid-feedback,
+.invalid-feedback {
+  display: none;
+  margin-top: var(--space-2);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+}
+
+.valid-feedback {
+  color: var(--color-success-700);
+}
+
+.invalid-feedback {
+  color: var(--color-error-600);
+}
+
+.form-control.is-valid ~ .valid-feedback,
+.form-select.is-valid ~ .valid-feedback,
+.is-valid ~ .valid-feedback {
+  display: block;
+}
+
+.form-control.is-invalid ~ .invalid-feedback,
+.form-select.is-invalid ~ .invalid-feedback,
+.is-invalid ~ .invalid-feedback {
+  display: block;
+}
+
+.form-check-input.is-invalid {
+  border-color: var(--color-error);
+}
+
+.form-check-input.is-valid {
+  border-color: var(--color-success);
+}
+
+/* ==========================================================================
+   7. MISC
+   ========================================================================== */
+
+.form-hint-icon {
+  color: var(--color-text-muted);
+  cursor: help;
+}
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+/* Remove native number input spinners for a cleaner look, keep keyboard/scroll access */
+.form-control[type='number'] {
+  -moz-appearance: textfield;
+}
+
+.form-control[type='number']::-webkit-outer-spin-button,
+.form-control[type='number']::-webkit-inner-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+}
