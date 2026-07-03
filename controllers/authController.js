@@ -25,7 +25,7 @@ const register = asyncHandler(async (req, res) => {
   setAuthCookies(res, accessToken, refreshToken);
   res.status(201).json({
     success: true,
-    message: 'Registration successful',
+    message: 'Registration successful. Please check your email to verify your account.',
     data: { user, accessToken },
   });
 });
@@ -47,6 +47,13 @@ const logout = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, message: 'Logged out successfully' });
 });
 
+// POST /api/auth/logout-all (protected) - invalidates every session/device
+const logoutAllDevices = asyncHandler(async (req, res) => {
+  await authService.logoutAllDevices(req.user.id);
+  clearAuthCookies(res);
+  res.status(200).json({ success: true, message: 'Logged out from all devices' });
+});
+
 // POST /api/auth/refresh-token
 const refreshToken = asyncHandler(async (req, res) => {
   const token = req.body.refreshToken || req.cookies.refreshToken;
@@ -59,10 +66,75 @@ const refreshToken = asyncHandler(async (req, res) => {
   });
 });
 
-// GET /api/auth/me (protected)
+// GET /api/auth/me (protected) - `protect` already loaded a fresh user record
 const getMe = asyncHandler(async (req, res) => {
-  const user = await authService.getUserById(req.user.id);
-  res.status(200).json({ success: true, data: { user } });
+  res.status(200).json({ success: true, data: { user: req.user } });
 });
 
-module.exports = { register, login, logout, refreshToken, getMe };
+// GET /api/auth/verify-email/:token
+const verifyEmail = asyncHandler(async (req, res) => {
+  const user = await authService.verifyEmail(req.params.token);
+  res.status(200).json({ success: true, message: 'Email verified successfully', data: { user } });
+});
+
+// POST /api/auth/resend-verification
+const resendVerification = asyncHandler(async (req, res) => {
+  await authService.resendVerificationEmail(req.body.email);
+  res.status(200).json({
+    success: true,
+    message: 'If an account with that email exists, a verification link has been sent',
+  });
+});
+
+// POST /api/auth/forgot-password
+const forgotPassword = asyncHandler(async (req, res) => {
+  await authService.forgotPassword(req.body.email);
+  res.status(200).json({
+    success: true,
+    message: 'If an account with that email exists, a password reset link has been sent',
+  });
+});
+
+// PATCH /api/auth/reset-password/:token
+const resetPassword = asyncHandler(async (req, res) => {
+  const { user, accessToken, refreshToken: newRefreshToken } = await authService.resetPassword(
+    req.params.token,
+    req.body.password
+  );
+  setAuthCookies(res, accessToken, newRefreshToken);
+  res.status(200).json({
+    success: true,
+    message: 'Password reset successful',
+    data: { user, accessToken },
+  });
+});
+
+// PATCH /api/auth/change-password (protected)
+const changePassword = asyncHandler(async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  const { user, accessToken, refreshToken: newRefreshToken } = await authService.changePassword(
+    req.user.id,
+    currentPassword,
+    newPassword
+  );
+  setAuthCookies(res, accessToken, newRefreshToken);
+  res.status(200).json({
+    success: true,
+    message: 'Password changed successfully',
+    data: { user, accessToken },
+  });
+});
+
+module.exports = {
+  register,
+  login,
+  logout,
+  logoutAllDevices,
+  refreshToken,
+  getMe,
+  verifyEmail,
+  resendVerification,
+  forgotPassword,
+  resetPassword,
+  changePassword,
+};

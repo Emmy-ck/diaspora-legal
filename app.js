@@ -5,6 +5,7 @@ const morgan = require('morgan');
 const compression = require('compression');
 const cookieParser = require('cookie-parser');
 const path = require('path');
+const fs = require('fs');
 
 const { attachUser } = require('./middleware/authMiddleware');
 const { notFound, errorHandler } = require('./middleware/errorHandler');
@@ -15,9 +16,14 @@ require('./models');
 
 const app = express();
 
-// --- Request flow -----------------------------------------------------
+// --- Global request flow -----------------------------------------------
 // Incoming Request -> Helmet -> Compression -> CORS -> JSON Parser
-//   -> Authentication -> Routes -> Error Handler
+//   -> Cookie Parser -> Request Logging -> Static Files
+//   -> Authentication (decode token) -> Routes -> Error Handling
+//
+// --- Per-route flow (see routes/*.js) -----------------------------------
+// Route -> protect (JWT authentication) -> authorize (role authorization)
+//   -> validate*/uploadMiddleware (input validation / file uploads) -> Controller
 
 // 1. Security middleware
 app.use(helmet());
@@ -40,8 +46,19 @@ app.use(express.urlencoded({ extended: true }));
 // 5. Cookie parsing (needed for reading auth tokens from cookies)
 app.use(cookieParser(process.env.COOKIE_SECRET));
 
+// Request logging - always write an audit trail to logs/access.log, plus a
+// human-readable stream to the console outside of production/test.
 if (process.env.NODE_ENV !== 'test') {
-  app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
+  const logsDir = path.join(__dirname, 'logs');
+  if (!fs.existsSync(logsDir)) {
+    fs.mkdirSync(logsDir, { recursive: true });
+  }
+  const accessLogStream = fs.createWriteStream(path.join(logsDir, 'access.log'), { flags: 'a' });
+  app.use(morgan('combined', { stream: accessLogStream }));
+
+  if (process.env.NODE_ENV !== 'production') {
+    app.use(morgan('dev'));
+  }
 }
 
 // 6. Static files
@@ -53,9 +70,10 @@ app.get('/health', (req, res) => {
   res.status(200).json({ success: true, message: 'Diaspora Legal API is running' });
 });
 
-// 7. Authentication - resolves req.user from the token if present, but
-// never blocks the request. Individual routers/routes apply `protect`
-// (see middleware/authMiddleware.js) where authentication is required.
+// 7. Authentication - decodes the token into req.tokenPayload if present,
+// but never blocks the request. Individual routers/routes apply `protect`
+// (see middleware/authMiddleware.js), which validates the session against
+// the database and sets req.user, where authentication is required.
 app.use(attachUser);
 
 // 8. API routes
@@ -66,6 +84,7 @@ app.use('/api/consultations', require('./routes/consultations'));
 app.use('/api/appointments', require('./routes/appointments'));
 app.use('/api/documents', require('./routes/documents'));
 app.use('/api/payments', require('./routes/payments'));
+app.use('/api/messages', require('./routes/messages'));
 app.use('/api/notifications', require('./routes/notifications'));
 
 // 9. Global error handling

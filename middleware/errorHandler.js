@@ -27,6 +27,15 @@ const normalizeError = (err) => {
     return { statusCode: 401, message: 'Invalid or expired token' };
   }
 
+  if (err.name === 'MulterError') {
+    const messages = {
+      LIMIT_FILE_SIZE: `File is too large. Max size is ${process.env.MAX_FILE_SIZE_MB || 10}MB`,
+      LIMIT_FILE_COUNT: 'Too many files uploaded',
+      LIMIT_UNEXPECTED_FILE: 'Unexpected file field in upload',
+    };
+    return { statusCode: 400, message: messages[err.code] || err.message };
+  }
+
   return { statusCode: err.statusCode || 500, message: err.message || 'Internal Server Error' };
 };
 
