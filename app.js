@@ -76,16 +76,8 @@ app.get('/health', (req, res) => {
 // the database and sets req.user, where authentication is required.
 app.use(attachUser);
 
-// 8. API routes
-app.use('/api/auth', require('./routes/authRoutes'));
-app.use('/api/users', require('./routes/users'));
-app.use('/api/lawyers', require('./routes/lawyers'));
-app.use('/api/consultations', require('./routes/consultations'));
-app.use('/api/appointments', require('./routes/appointments'));
-app.use('/api/documents', require('./routes/documents'));
-app.use('/api/payments', require('./routes/payments'));
-app.use('/api/messages', require('./routes/messages'));
-app.use('/api/notifications', require('./routes/notifications'));
+// 8. API routes - see routes/index.js for the full feature-route registry
+app.use('/api', require('./routes'));
 
 // 9. Global error handling
 app.use(notFound);
