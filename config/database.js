@@ -9,6 +9,7 @@ const {
   DB_PASSWORD,
   DB_DIALECT,
   DB_LOGGING,
+  DB_SYNC,
   NODE_ENV,
 } = process.env;
 
@@ -37,14 +38,29 @@ const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASSWORD, {
 // 2. Authenticate the connection (verifies credentials/host are correct).
 const connectDB = async () => {
   try {
+    const authStart = Date.now();
     await sequelize.authenticate();
-    logger.success(`Database connected: ${DB_NAME}@${DB_HOST}:${DB_PORT}`);
+    logger.success(`Database connected: ${DB_NAME}@${DB_HOST}:${DB_PORT} (${Date.now() - authStart}ms)`);
 
     if (NODE_ENV !== 'production') {
-      // Keeps tables in sync with model definitions during local development.
-      // Use proper migrations instead of `alter: true` in production.
-      await sequelize.sync({ alter: true });
-      logger.info('Database models synchronized');
+      // `alter: true` diffs every column/index on every table against the DB on each
+      // boot, which gets slow as the schema grows. Default to a fast sync that only
+      // creates missing tables; opt into the full diff explicitly with DB_SYNC=alter.
+      const syncMode = (DB_SYNC || 'fast').toLowerCase();
+      const syncStart = Date.now();
+
+      if (syncMode === 'alter') {
+        await sequelize.sync({ alter: true });
+        logger.info(`Database models synchronized with alter (${Date.now() - syncStart}ms)`);
+      } else if (syncMode === 'false' || syncMode === 'skip' || syncMode === 'none') {
+        logger.info('Database model sync skipped (DB_SYNC=false)');
+      } else {
+        await sequelize.sync();
+        logger.info(
+          `Database models synchronized (${Date.now() - syncStart}ms). ` +
+            'Set DB_SYNC=alter to also apply column-level changes (slower).'
+        );
+      }
     }
   } catch (error) {
     logger.error('Unable to connect to the database', error.message);
