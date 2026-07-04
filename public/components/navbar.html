@@ -1,0 +1,52 @@
+<!--
+  DLSS Navbar — shared, reusable component.
+
+  Usage: fetch this fragment and inject it into a page's
+  `<div data-include="navbar"></div>` placeholder (see js/app.js,
+  `initIncludes()` / `initNavbar()`), or paste it directly at the top of
+  <body>. All links use root-absolute paths (e.g. "/pages/website/about.html")
+  so it renders correctly no matter how deeply nested the including page is.
+
+  Add `data-nav-link="home|about|services|faq|contact"` matching the
+  current page to the <body> tag (e.g. <body data-page="about">) and
+  js/app.js will automatically mark the matching link as `.active`.
+-->
+<header class="navbar" id="navbar" data-component="navbar">
+  <div class="container navbar-inner">
+    <a href="/index.html" class="navbar-brand" aria-label="DLSS — Diaspora Legal Support Services, home">
+      <span class="navbar-brand-mark" aria-hidden="true">DL</span>
+      <span class="navbar-brand-text">
+        <span class="navbar-brand-title">DLSS</span>
+        <span class="navbar-brand-subtitle">Diaspora Legal Support</span>
+      </span>
+    </a>
+
+    <button
+      type="button"
+      class="navbar-toggle"
+      id="navbarToggle"
+      aria-label="Toggle navigation menu"
+      aria-expanded="false"
+      aria-controls="navbarMenu"
+    >
+      <span class="navbar-toggle-bar"></span>
+      <span class="navbar-toggle-bar"></span>
+      <span class="navbar-toggle-bar"></span>
+    </button>
+
+    <nav class="navbar-menu" id="navbarMenu" aria-label="Primary">
+      <ul class="navbar-links">
+        <li><a href="/index.html" class="navbar-link" data-nav-link="home">Home</a></li>
+        <li><a href="/pages/website/about.html" class="navbar-link" data-nav-link="about">About</a></li>
+        <li><a href="/pages/website/services.html" class="navbar-link" data-nav-link="services">Services</a></li>
+        <li><a href="/pages/website/faq.html" class="navbar-link" data-nav-link="faq">FAQ</a></li>
+        <li><a href="/pages/website/contact.html" class="navbar-link" data-nav-link="contact">Contact</a></li>
+      </ul>
+
+      <div class="navbar-actions">
+        <a href="/pages/auth/login.html" class="btn btn-outline-light btn-sm">Log In</a>
+        <a href="/pages/auth/register.html" class="btn btn-secondary btn-sm">Get Started</a>
+      </div>
+    </nav>
+  </div>
+</header>

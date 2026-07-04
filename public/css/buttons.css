@@ -172,6 +172,20 @@
   color: var(--color-success-contrast);
 }
 
+/* For use on dark surfaces (navbar, hero sections, sidebar) where the
+   default navy outline button would be invisible. */
+.btn-outline-light {
+  background-color: transparent;
+  border-color: rgba(255, 255, 255, 0.5);
+  color: var(--color-white);
+}
+
+.btn-outline-light:hover:not(:disabled):not(.is-disabled) {
+  background-color: var(--color-white);
+  border-color: var(--color-white);
+  color: var(--color-primary);
+}
+
 /* ==========================================================================
    6. DANGER BUTTON
    ========================================================================== */
@@ -270,6 +284,10 @@
 
 .btn-outline-success.is-loading::after {
   color: var(--color-success);
+}
+
+.btn-outline-light.is-loading::after {
+  color: var(--color-white);
 }
 
 @keyframes btn-spin {

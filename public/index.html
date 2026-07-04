@@ -3,8 +3,38 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Diaspora Legal API</title>
+  <title>Diaspora Legal APP</title>
+  <link rel="icon" href="/favicon.ico" />
+
+  <!-- Design tokens first, then base/reset, then layout, then components,
+       then responsive.css LAST (see its header comment for why). -->
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/layout.css" />
+  <link rel="stylesheet" href="/css/buttons.css" />
+  <link rel="stylesheet" href="/css/forms.css" />
+  <link rel="stylesheet" href="/css/cards.css" />
+  <link rel="stylesheet" href="/css/tables.css" />
+  <link rel="stylesheet" href="/css/modal.css" />
+  <link rel="stylesheet" href="/css/dashboard.css" />
+  <link rel="stylesheet" href="/css/animations.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
 </head>
-<body>
+<body data-page="home">
+  <div data-include="navbar"></div>
+
+  <main>
+    <section class="section">
+      <div class="container">
+        <h1 class="text-display" style="color: var(--color-primary);">Trusted Legal Support.</h1>
+        <p style="max-width: 40ch; margin-top: var(--space-4);">
+          Professional, efficient and convenient legal support and guidance
+          within the Kenya jurisdiction — wherever you are.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <script src="/js/app.js" defer></script>
 </body>
 </html>

@@ -412,6 +412,78 @@ h4 {
 }
 
 /* ==========================================================================
+   6b. NAVBAR — DESKTOP ENHANCEMENT (md, 768px+)
+   ==========================================================================
+   Below this breakpoint the nav menu is a collapsible dropdown opened by
+   the hamburger toggle (see style.css). From here up it becomes a
+   permanent horizontal row and the toggle disappears. */
+
+@media (min-width: 768px) {
+  .navbar-toggle {
+    display: none;
+  }
+
+  .navbar-menu {
+    position: static;
+    flex: 1 1 auto;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-1);
+    max-height: none;
+    overflow: visible;
+    opacity: 1;
+    visibility: visible;
+    padding: 0;
+    margin-left: var(--space-8);
+    background-color: transparent;
+    border-bottom: 0;
+    box-shadow: none;
+  }
+
+  .navbar-links {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-1);
+  }
+
+  .navbar-link {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .navbar-link::after {
+    content: '';
+    position: absolute;
+    left: var(--space-3);
+    right: var(--space-3);
+    bottom: 0;
+    height: 2px;
+    border-radius: var(--radius-full);
+    background-color: var(--color-secondary);
+    transform: scaleX(0);
+    transition: transform var(--transition-fast);
+  }
+
+  .navbar-link:hover::after,
+  .navbar-link.active::after {
+    transform: scaleX(1);
+  }
+
+  .navbar-actions {
+    flex-direction: row;
+    align-items: center;
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+    margin-left: var(--space-6);
+  }
+
+  .navbar-actions .btn {
+    width: auto;
+  }
+}
+
+/* ==========================================================================
    7. DASHBOARD GRID COLUMN PROGRESSION
    ==========================================================================
    1 column (mobile, set in layout.css) → 2 columns (sm/md) → full target
