@@ -443,9 +443,14 @@ textarea.form-control {
 
 .form-actions {
   display: flex;
-  align-items: center;
+  flex-direction: column-reverse;
+  align-items: stretch;
   gap: var(--space-3);
   margin-top: var(--space-6);
+}
+
+.form-actions .btn {
+  width: 100%;
 }
 
 /* Remove native number input spinners for a cleaner look, keep keyboard/scroll access */

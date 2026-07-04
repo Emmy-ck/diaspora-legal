@@ -1,0 +1,539 @@
+/* ==========================================================================
+   DLSS — Responsive (Mobile-First)
+   ==========================================================================
+   The entire design system is authored mobile-first: every base rule in
+   variables.css / layout.css / buttons.css / forms.css / cards.css /
+   tables.css / modal.css targets a small phone screen by default. This
+   file is the ONLY place breakpoints are introduced, and it exclusively
+   uses `min-width` media queries — never `max-width` — so a phone always
+   gets the simplest, safest layout, and larger screens progressively gain
+   more columns, more chrome, and more breathing room.
+
+   ⚠ LOAD ORDER: this stylesheet must be linked LAST in index.html, after
+   every other CSS file. A number of rules below share the exact same
+   selector and specificity as rules in layout.css/forms.css/modal.css/
+   tables.css (e.g. `.sidebar`, `.form-actions`, `.table-toolbar`) — CSS
+   only lets the breakpoint-specific version win if it is later in source
+   order. Suggested `<link>` order:
+     variables.css → style.css → layout.css → buttons.css → forms.css →
+     cards.css → tables.css → modal.css → dashboard.css → animations.css →
+     responsive.css (last)
+
+   Breakpoints (kept in sync with variables.css custom properties, which
+   can't be read inside @media conditions):
+     sm   ≥ 576px   large/landscape phones
+     md   ≥ 768px   tablets
+     lg   ≥ 992px   small laptops — sidebar becomes a fixed column here
+     xl   ≥ 1200px  desktops
+     2xl  ≥ 1400px  large desktops
+   ========================================================================== */
+
+/* ==========================================================================
+   1. FLUID TYPOGRAPHY
+   ==========================================================================
+   clamp(min, preferred, max) scales continuously with the viewport instead
+   of jumping at fixed breakpoints — the most "super responsive" way to
+   size headings and display text. */
+
+h1 {
+  font-size: clamp(1.875rem, 1.5rem + 1.6vw, 3rem);
+  line-height: var(--line-height-tight);
+}
+
+h2 {
+  font-size: clamp(1.5rem, 1.3rem + 1vw, 2.25rem);
+  line-height: var(--line-height-tight);
+}
+
+h3 {
+  font-size: clamp(1.25rem, 1.1rem + 0.6vw, 1.75rem);
+  line-height: var(--line-height-tight);
+}
+
+h4 {
+  font-size: clamp(1.125rem, 1.05rem + 0.3vw, 1.5rem);
+  line-height: var(--line-height-tight);
+}
+
+.text-display {
+  font-family: var(--font-family-heading);
+  font-weight: var(--font-weight-bold);
+  font-size: clamp(2.25rem, 1.6rem + 3vw, 4.5rem);
+  line-height: var(--line-height-tight);
+}
+
+.page-title {
+  font-size: clamp(1.5rem, 1.3rem + 1vw, 2.25rem);
+}
+
+/* ==========================================================================
+   2. BASE VISIBILITY & ACCESSIBILITY UTILITIES
+   ========================================================================== */
+
+.hidden {
+  display: none !important;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Simple, memorable aliases for the two most common cases — both reveal as
+   `block`. `.hidden-desktop` has no base rule (elements are visible by
+   default) and is only hidden from `md` up. If you need the revealed
+   element to be flex/grid/inline-flex instead, combine `.hidden` with the
+   matching `.md:flex` / `.lg:grid` prefixed utility from section 3 instead
+   (e.g. `class="hidden md:flex"`). */
+.hidden-mobile {
+  display: none !important;
+}
+
+@media (min-width: 768px) {
+  .hidden-mobile {
+    display: block !important;
+  }
+
+  .hidden-desktop {
+    display: none !important;
+  }
+}
+
+/* ==========================================================================
+   3. RESPONSIVE PREFIX UTILITIES
+   ==========================================================================
+   Convention (matches the utility classes in layout.css): an unprefixed
+   class like `.grid-cols-3` applies at every size. A prefixed class like
+   `.md:grid-cols-3` only takes effect from that breakpoint up, letting you
+   compose mobile-first responsive layouts directly in markup, e.g.:
+
+     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+
+   Note the escaped colon (`\:`) below — required in CSS, not needed in the
+   HTML class attribute itself. */
+
+@media (min-width: 576px) {
+  .sm\:hidden { display: none !important; }
+  .sm\:block { display: block !important; }
+  .sm\:flex { display: flex !important; }
+  .sm\:inline-flex { display: inline-flex !important; }
+  .sm\:grid { display: grid !important; }
+
+  .sm\:flex-row { flex-direction: row !important; }
+  .sm\:flex-col { flex-direction: column !important; }
+
+  .sm\:text-left { text-align: left !important; }
+  .sm\:text-center { text-align: center !important; }
+  .sm\:text-right { text-align: right !important; }
+
+  .sm\:grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)) !important; }
+  .sm\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .sm\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+  .sm\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+  .sm\:grid-cols-6 { grid-template-columns: repeat(6, minmax(0, 1fr)) !important; }
+  .sm\:grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)) !important; }
+
+  .sm\:col-span-1 { grid-column: span 1 / span 1 !important; }
+  .sm\:col-span-2 { grid-column: span 2 / span 2 !important; }
+  .sm\:col-span-3 { grid-column: span 3 / span 3 !important; }
+  .sm\:col-span-4 { grid-column: span 4 / span 4 !important; }
+  .sm\:col-span-6 { grid-column: span 6 / span 6 !important; }
+  .sm\:col-span-8 { grid-column: span 8 / span 8 !important; }
+  .sm\:col-span-12,
+  .sm\:col-span-full { grid-column: 1 / -1 !important; }
+}
+
+@media (min-width: 768px) {
+  .md\:hidden { display: none !important; }
+  .md\:block { display: block !important; }
+  .md\:flex { display: flex !important; }
+  .md\:inline-flex { display: inline-flex !important; }
+  .md\:grid { display: grid !important; }
+
+  .md\:flex-row { flex-direction: row !important; }
+  .md\:flex-col { flex-direction: column !important; }
+
+  .md\:text-left { text-align: left !important; }
+  .md\:text-center { text-align: center !important; }
+  .md\:text-right { text-align: right !important; }
+
+  .md\:grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)) !important; }
+  .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+  .md\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+  .md\:grid-cols-6 { grid-template-columns: repeat(6, minmax(0, 1fr)) !important; }
+  .md\:grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)) !important; }
+
+  .md\:col-span-1 { grid-column: span 1 / span 1 !important; }
+  .md\:col-span-2 { grid-column: span 2 / span 2 !important; }
+  .md\:col-span-3 { grid-column: span 3 / span 3 !important; }
+  .md\:col-span-4 { grid-column: span 4 / span 4 !important; }
+  .md\:col-span-6 { grid-column: span 6 / span 6 !important; }
+  .md\:col-span-8 { grid-column: span 8 / span 8 !important; }
+  .md\:col-span-12,
+  .md\:col-span-full { grid-column: 1 / -1 !important; }
+}
+
+@media (min-width: 992px) {
+  .lg\:hidden { display: none !important; }
+  .lg\:block { display: block !important; }
+  .lg\:flex { display: flex !important; }
+  .lg\:inline-flex { display: inline-flex !important; }
+  .lg\:grid { display: grid !important; }
+
+  .lg\:flex-row { flex-direction: row !important; }
+  .lg\:flex-col { flex-direction: column !important; }
+
+  .lg\:text-left { text-align: left !important; }
+  .lg\:text-center { text-align: center !important; }
+  .lg\:text-right { text-align: right !important; }
+
+  .lg\:grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)) !important; }
+  .lg\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .lg\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+  .lg\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+  .lg\:grid-cols-6 { grid-template-columns: repeat(6, minmax(0, 1fr)) !important; }
+  .lg\:grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)) !important; }
+
+  .lg\:col-span-1 { grid-column: span 1 / span 1 !important; }
+  .lg\:col-span-2 { grid-column: span 2 / span 2 !important; }
+  .lg\:col-span-3 { grid-column: span 3 / span 3 !important; }
+  .lg\:col-span-4 { grid-column: span 4 / span 4 !important; }
+  .lg\:col-span-6 { grid-column: span 6 / span 6 !important; }
+  .lg\:col-span-8 { grid-column: span 8 / span 8 !important; }
+  .lg\:col-span-12,
+  .lg\:col-span-full { grid-column: 1 / -1 !important; }
+}
+
+@media (min-width: 1200px) {
+  .xl\:hidden { display: none !important; }
+  .xl\:block { display: block !important; }
+  .xl\:flex { display: flex !important; }
+  .xl\:inline-flex { display: inline-flex !important; }
+  .xl\:grid { display: grid !important; }
+
+  .xl\:flex-row { flex-direction: row !important; }
+  .xl\:flex-col { flex-direction: column !important; }
+
+  .xl\:grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)) !important; }
+  .xl\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .xl\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+  .xl\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+  .xl\:grid-cols-6 { grid-template-columns: repeat(6, minmax(0, 1fr)) !important; }
+  .xl\:grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)) !important; }
+
+  .xl\:col-span-3 { grid-column: span 3 / span 3 !important; }
+  .xl\:col-span-4 { grid-column: span 4 / span 4 !important; }
+  .xl\:col-span-6 { grid-column: span 6 / span 6 !important; }
+  .xl\:col-span-8 { grid-column: span 8 / span 8 !important; }
+}
+
+/* ==========================================================================
+   4. CONTAINER PADDING SCALE
+   ==========================================================================
+   Redeclaring the custom property at :root inside each breakpoint means
+   every consumer of var(--container-padding) — .container, .container-*,
+   .container-fluid — automatically gets more breathing room as the
+   viewport grows, with no per-component overrides needed. */
+
+@media (min-width: 576px) {
+  :root { --container-padding: var(--space-5); }
+}
+
+@media (min-width: 768px) {
+  :root { --container-padding: var(--space-6); }
+}
+
+@media (min-width: 992px) {
+  :root { --container-padding: var(--space-8); }
+}
+
+/* ==========================================================================
+   5. TABLE "CARD STACK" PATTERN (mobile) → NORMAL TABLE (tablet+)
+   ==========================================================================
+   Opt-in with `.table-stack` on a `.table`. Requires a `data-label`
+   attribute on each <td> (matching its column header) so the label can be
+   shown next to the value once the table collapses into stacked rows:
+
+     <table class="table table-stack">
+       <tbody>
+         <tr>
+           <td data-label="Client">Jane Doe</td>
+           <td data-label="Amount">KES 12,000</td>
+         </tr>
+       </tbody>
+     </table>
+
+   Mobile-first: the stacked-card layout IS the base style; it reverts to
+   a normal table from md (768px) up. */
+
+.table-stack thead {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+.table-stack,
+.table-stack tbody,
+.table-stack tr {
+  display: block;
+  width: 100%;
+}
+
+.table-stack tr {
+  margin-bottom: var(--space-4);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.table-stack tr:last-child {
+  margin-bottom: 0;
+}
+
+.table-stack tbody td {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  text-align: right;
+}
+
+.table-stack tbody td::before {
+  content: attr(data-label);
+  flex-shrink: 0;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+@media (min-width: 768px) {
+  .table-stack thead {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip: auto;
+  }
+
+  .table-stack,
+  .table-stack tbody,
+  .table-stack tr {
+    display: table-row-group;
+  }
+
+  .table-stack {
+    display: table;
+  }
+
+  .table-stack thead {
+    display: table-header-group;
+  }
+
+  .table-stack tbody {
+    display: table-row-group;
+  }
+
+  .table-stack tr {
+    display: table-row;
+    margin-bottom: 0;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .table-stack tbody td {
+    display: table-cell;
+    text-align: inherit;
+  }
+
+  .table-stack tbody td::before {
+    content: none;
+  }
+}
+
+/* ==========================================================================
+   6. ACTION ROWS: RESTORE HORIZONTAL LAYOUT (forms, modals, table chrome)
+   ==========================================================================
+   layout.css/forms.css/modal.css/tables.css define these as stacked,
+   full-width-button columns for mobile. From `sm`/`md` up they become
+   compact inline rows. */
+
+@media (min-width: 576px) {
+  .form-actions {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  .form-actions .btn {
+    width: auto;
+  }
+
+  .modal-footer {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  .modal-footer .btn {
+    width: auto;
+  }
+
+  .modal-footer.modal-footer-split {
+    justify-content: space-between;
+  }
+}
+
+@media (min-width: 768px) {
+  .table-toolbar {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .table-footer {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    text-align: left;
+  }
+}
+
+/* ==========================================================================
+   7. DASHBOARD GRID COLUMN PROGRESSION
+   ==========================================================================
+   1 column (mobile, set in layout.css) → 2 columns (sm/md) → full target
+   column count (lg). Gives every dashboard/stat grid a smooth progression
+   instead of jumping straight from 1 to 4 columns. */
+
+@media (min-width: 576px) {
+  .dashboard-grid--2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 768px) {
+  .dashboard-grid--3,
+  .dashboard-grid--4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 992px) {
+  .dashboard-grid--3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .dashboard-grid--4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* ==========================================================================
+   8. APP SHELL / SIDEBAR — DESKTOP ENHANCEMENT (lg, 992px+)
+   ==========================================================================
+   Below this breakpoint the sidebar is an off-canvas drawer (see
+   layout.css). From here up it becomes a permanent, sticky column and the
+   mobile drawer/backdrop/toggle machinery is switched off. */
+
+@media (min-width: 992px) {
+  .app-shell {
+    grid-template-columns: var(--sidebar-width) 1fr;
+    grid-template-areas:
+      'sidebar header'
+      'sidebar main';
+    transition: grid-template-columns var(--transition-base);
+  }
+
+  .app-shell.sidebar-collapsed {
+    grid-template-columns: var(--sidebar-width-collapsed) 1fr;
+  }
+
+  .sidebar {
+    position: sticky;
+    top: 0;
+    left: auto;
+    width: 100%;
+    max-width: none;
+    height: 100vh;
+    transform: none;
+    box-shadow: none;
+    transition: width var(--transition-base);
+  }
+
+  .sidebar-backdrop {
+    display: none;
+  }
+
+  /* Collapsed = icon-only rail, only meaningful once the sidebar is a
+     permanent fixture of the layout (i.e. at desktop widths). */
+  .app-shell.sidebar-collapsed .sidebar {
+    width: var(--sidebar-width-collapsed);
+  }
+
+  .app-shell.sidebar-collapsed .sidebar-link {
+    justify-content: center;
+  }
+
+  .app-shell.sidebar-collapsed .sidebar-link span,
+  .app-shell.sidebar-collapsed .sidebar-nav-group-title,
+  .app-shell.sidebar-collapsed .sidebar-header span {
+    display: none;
+  }
+
+  /* Hamburger/menu button that opens the mobile drawer is redundant once
+     the sidebar is permanently visible. */
+  .sidebar-toggle-mobile {
+    display: none !important;
+  }
+}
+
+/* ==========================================================================
+   9. PAGE & SECTION SPACING PROGRESSION
+   ========================================================================== */
+
+@media (min-width: 768px) {
+  .page {
+    padding: var(--space-10) 0;
+  }
+
+  .section {
+    padding-block: var(--space-20);
+  }
+}
+
+@media (min-width: 1200px) {
+  .section {
+    padding-block: var(--space-24);
+  }
+
+  .section-lg {
+    padding-block: var(--space-32);
+  }
+}
+
+/* ==========================================================================
+   10. LARGE DESKTOP REFINEMENTS (2xl, 1400px+)
+   ========================================================================== */
+
+@media (min-width: 1400px) {
+  :root {
+    --container-padding: var(--space-10);
+  }
+
+  .dashboard-main {
+    padding: var(--space-8);
+  }
+}

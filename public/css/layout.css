@@ -160,39 +160,60 @@
 .flex-shrink-0 { flex-shrink: 0; }
 
 /* ==========================================================================
-   4. SIDEBAR LAYOUT
+   4. SIDEBAR LAYOUT (mobile-first)
    ========================================================================== */
+/* Base = mobile: a single-column shell with the sidebar living off-canvas
+   as a slide-in drawer. Desktop turns it into a fixed two-column grid —
+   see the "min-width: 992px" section of responsive.css. */
 
 .app-shell {
   display: grid;
-  grid-template-columns: var(--sidebar-width) 1fr;
+  grid-template-columns: 1fr;
   grid-template-rows: var(--header-height) 1fr;
   grid-template-areas:
-    'sidebar header'
-    'sidebar main';
+    'header'
+    'main';
   min-height: 100vh;
   background-color: var(--color-bg-body);
-  transition: grid-template-columns var(--transition-base);
-}
-
-.app-shell.sidebar-collapsed {
-  grid-template-columns: var(--sidebar-width-collapsed) 1fr;
 }
 
 .sidebar {
   grid-area: sidebar;
   display: flex;
   flex-direction: column;
-  width: 100%;
-  height: 100vh;
-  position: sticky;
-  top: 0;
+  position: fixed;
+  inset-block: 0;
+  left: 0;
+  width: var(--sidebar-width);
+  max-width: 85vw;
   background-color: var(--color-primary);
   color: var(--color-text-inverse);
   overflow-x: hidden;
   overflow-y: auto;
   z-index: var(--z-index-fixed);
-  transition: width var(--transition-base);
+  transform: translateX(-100%);
+  transition: transform var(--transition-base);
+}
+
+.app-shell.sidebar-open .sidebar {
+  transform: translateX(0);
+  box-shadow: var(--shadow-xl);
+}
+
+/* Backdrop shown behind the drawer on mobile while it's open */
+.sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-index-fixed) - 1);
+  background-color: rgba(10, 35, 64, 0.5);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--transition-base), visibility var(--transition-base);
+}
+
+.app-shell.sidebar-open .sidebar-backdrop {
+  opacity: 1;
+  visibility: visible;
 }
 
 .sidebar-header {
@@ -251,20 +272,8 @@
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* Collapsed state hides text labels, keeps icons centered */
-.app-shell.sidebar-collapsed .sidebar {
-  width: var(--sidebar-width-collapsed);
-}
-
-.app-shell.sidebar-collapsed .sidebar-link {
-  justify-content: center;
-}
-
-.app-shell.sidebar-collapsed .sidebar-link span,
-.app-shell.sidebar-collapsed .sidebar-nav-group-title,
-.app-shell.sidebar-collapsed .sidebar-header span {
-  display: none;
-}
+/* Note: the "collapsed" icon-rail sidebar state is a desktop-only affordance
+   (mobile uses the open/closed drawer above instead) — see responsive.css. */
 
 /* ==========================================================================
    5. DASHBOARD LAYOUT
@@ -299,9 +308,14 @@
   margin-bottom: var(--space-8);
 }
 
-.dashboard-grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.dashboard-grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.dashboard-grid--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+/* Mobile-first: these force an exact column count, so they default to a
+   single column and step up to 2/3/4 columns at larger breakpoints —
+   see responsive.css. */
+.dashboard-grid--2,
+.dashboard-grid--3,
+.dashboard-grid--4 {
+  grid-template-columns: 1fr;
+}
 
 .dashboard-section {
   margin-bottom: var(--space-10);
@@ -363,36 +377,8 @@
 .stack-8 > * + * { margin-top: var(--space-8); }
 
 /* ==========================================================================
-   7. STRUCTURAL RESPONSIVE BEHAVIOR
+   7. RESPONSIVE ENHANCEMENT
    ==========================================================================
-   Minimal rules so the shell isn't broken on small screens. Visual/spacing
-   fine-tuning per breakpoint belongs in responsive.css. */
-
-@media (max-width: 992px) {
-  .app-shell {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      'header'
-      'main';
-  }
-
-  .sidebar {
-    position: fixed;
-    inset-block: 0;
-    left: 0;
-    width: var(--sidebar-width);
-    transform: translateX(-100%);
-    transition: transform var(--transition-base);
-  }
-
-  .app-shell.sidebar-open .sidebar {
-    transform: translateX(0);
-    box-shadow: var(--shadow-xl);
-  }
-
-  .dashboard-grid--2,
-  .dashboard-grid--3,
-  .dashboard-grid--4 {
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  }
-}
+   This file defines the mobile-first base only. All breakpoint-specific
+   enhancements (desktop sidebar, multi-column dashboard grids, etc.) live
+   in responsive.css. */
