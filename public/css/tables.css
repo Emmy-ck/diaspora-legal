@@ -1,0 +1,294 @@
+/* ==========================================================================
+   DLSS — Tables
+   ==========================================================================
+   Data tables for consultations, payments, clients, lawyers, etc. Includes
+   the base table, a card-style responsive wrapper, sortable headers, row
+   selection, status cells, empty state and skeleton loading rows.
+   Depends on variables.css (and pairs well with the .badge/.avatar
+   components defined in cards.css for status/name cells).
+   ========================================================================== */
+
+/* ==========================================================================
+   1. TABLE CONTAINER (card-style wrapper + horizontal scroll)
+   ========================================================================== */
+
+.table-container {
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-6);
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.table-toolbar-title {
+  margin: 0;
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+}
+
+.table-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* ==========================================================================
+   2. BASE TABLE
+   ========================================================================== */
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+}
+
+.table thead th {
+  padding: var(--space-4) var(--space-5);
+  background-color: var(--color-bg-muted);
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.table thead th:first-child { padding-left: var(--space-6); }
+.table thead th:last-child { padding-right: var(--space-6); }
+
+.table tbody td {
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--color-border-light);
+  vertical-align: middle;
+}
+
+.table tbody td:first-child { padding-left: var(--space-6); }
+.table tbody td:last-child { padding-right: var(--space-6); }
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table tbody tr {
+  transition: background-color var(--transition-fast);
+}
+
+.table tbody tr:hover {
+  background-color: var(--color-bg-muted);
+}
+
+/* Sticky header, useful inside .dashboard-main scroll areas */
+.table-sticky-header thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+/* --- Variants --- */
+.table-striped tbody tr:nth-child(odd) {
+  background-color: var(--color-bg-muted);
+}
+
+.table-striped tbody tr:nth-child(odd):hover {
+  background-color: var(--color-primary-50);
+}
+
+.table-bordered td,
+.table-bordered th {
+  border: 1px solid var(--color-border-light);
+}
+
+.table-compact thead th,
+.table-compact tbody td {
+  padding: var(--space-2) var(--space-4);
+}
+
+/* --- Cell alignment helpers --- */
+.table th.text-right,
+.table td.text-right { text-align: right; }
+
+.table th.text-center,
+.table td.text-center { text-align: center; }
+
+/* ==========================================================================
+   3. CELL CONTENT HELPERS
+   ========================================================================== */
+
+.table-cell-primary {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.table-cell-muted {
+  color: var(--color-text-muted);
+}
+
+.table-cell-user {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.table-cell-user-name {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.table-cell-user-meta {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.table-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.table-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: var(--radius-md);
+  background-color: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.table-action-btn:hover {
+  background-color: var(--color-primary-50);
+  color: var(--color-primary);
+}
+
+.table-action-btn.action-danger:hover {
+  background-color: var(--color-error-bg);
+  color: var(--color-error);
+}
+
+/* ==========================================================================
+   4. SORTABLE COLUMN HEADERS
+   ========================================================================== */
+
+.table-sortable th[data-sort] {
+  cursor: pointer;
+  user-select: none;
+}
+
+.table-sortable th[data-sort] .sort-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.table-sortable th[data-sort] .sort-icon {
+  width: 0.75rem;
+  height: 0.75rem;
+  opacity: 0.4;
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+.table-sortable th[data-sort]:hover .sort-icon {
+  opacity: 0.8;
+}
+
+.table-sortable th[data-sort].sort-asc .sort-icon {
+  opacity: 1;
+  transform: rotate(0deg);
+}
+
+.table-sortable th[data-sort].sort-desc .sort-icon {
+  opacity: 1;
+  transform: rotate(180deg);
+}
+
+/* ==========================================================================
+   5. ROW SELECTION
+   ========================================================================== */
+
+.table td.table-select-cell,
+.table th.table-select-cell {
+  width: 2.5rem;
+  padding-right: 0;
+}
+
+.table tbody tr.is-selected {
+  background-color: var(--color-secondary-50);
+}
+
+.table tbody tr.is-selected:hover {
+  background-color: var(--color-secondary-100);
+}
+
+/* ==========================================================================
+   6. EMPTY & LOADING STATES
+   ========================================================================== */
+
+.table-empty-row td {
+  padding: var(--space-16) var(--space-6);
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.table-skeleton-cell {
+  height: 0.75rem;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-gray-200);
+  position: relative;
+  overflow: hidden;
+}
+
+.table-skeleton-cell::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.7), transparent);
+  animation: table-skeleton-shimmer 1.4s infinite;
+}
+
+@keyframes table-skeleton-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* ==========================================================================
+   7. TABLE FOOTER (result count + pagination slot)
+   ========================================================================== */
+
+.table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-6);
+  border-top: 1px solid var(--color-border-light);
+  background-color: var(--color-bg-muted);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}

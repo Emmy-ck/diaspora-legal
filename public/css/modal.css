@@ -1,0 +1,248 @@
+/* ==========================================================================
+   DLSS — Modal
+   ==========================================================================
+   Backdrop + dialog, sizes, header/body/footer, a centered confirm/alert
+   variant, and a slide-in drawer variant. Toggle visibility via the
+   `.is-open` class (add/remove with JS) rather than display:none, so the
+   built-in transitions can run.
+
+   Depends on variables.css. The open/close keyframes here are
+   modal-specific; shared, reusable animations belong in animations.css.
+   ========================================================================== */
+
+/* ==========================================================================
+   1. BACKDROP
+   ========================================================================== */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-index-modal-backdrop);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background-color: rgba(10, 35, 64, 0.55);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--transition-base), visibility var(--transition-base);
+}
+
+.modal-backdrop.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Prevent background scroll while a modal is open (toggle on <body>) */
+.modal-open {
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   2. MODAL DIALOG
+   ========================================================================== */
+
+.modal {
+  position: relative;
+  z-index: var(--z-index-modal);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 480px;
+  max-height: calc(100vh - var(--space-8));
+  background-color: var(--color-bg-surface);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  transform: translateY(16px) scale(0.98);
+  opacity: 0;
+  transition: transform var(--transition-base), opacity var(--transition-base);
+}
+
+.modal-backdrop.is-open .modal {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+/* --- Sizes --- */
+.modal-sm { max-width: 360px; }
+.modal-md { max-width: 480px; }
+.modal-lg { max-width: 720px; }
+.modal-xl { max-width: 960px; }
+
+.modal-fullscreen {
+  max-width: none;
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  border-radius: 0;
+}
+
+/* ==========================================================================
+   3. HEADER / BODY / FOOTER
+   ========================================================================== */
+
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-6) var(--space-6) var(--space-4);
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.modal-title {
+  margin: 0;
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+}
+
+.modal-subtitle {
+  margin: var(--space-1) 0 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.modal-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  margin: calc(var(--space-1) * -1) calc(var(--space-1) * -1) 0 0;
+  border: none;
+  border-radius: var(--radius-full);
+  background-color: transparent;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-lg);
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.modal-close:hover {
+  background-color: var(--color-bg-muted);
+  color: var(--color-text-primary);
+}
+
+.modal-body {
+  padding: var(--space-6);
+  overflow-y: auto;
+  color: var(--color-text-secondary);
+}
+
+.modal-header + .modal-body {
+  padding-top: var(--space-2);
+}
+
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-6) var(--space-6);
+}
+
+.modal-footer.modal-footer-split {
+  justify-content: space-between;
+}
+
+/* ==========================================================================
+   4. CONFIRM / ALERT VARIANT
+   ========================================================================== */
+
+.modal-confirm {
+  text-align: center;
+}
+
+.modal-confirm .modal-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  padding-top: var(--space-8);
+}
+
+.modal-confirm-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-2xl);
+}
+
+.modal-confirm-icon.icon-success { background-color: var(--color-success-bg); color: var(--color-success); }
+.modal-confirm-icon.icon-warning { background-color: var(--color-warning-bg); color: var(--color-warning); }
+.modal-confirm-icon.icon-error { background-color: var(--color-error-bg); color: var(--color-error); }
+.modal-confirm-icon.icon-info { background-color: var(--color-info-bg); color: var(--color-info); }
+
+.modal-confirm-title {
+  margin: 0;
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+}
+
+.modal-confirm-text {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.modal-confirm .modal-footer {
+  justify-content: center;
+  padding-bottom: var(--space-8);
+}
+
+/* ==========================================================================
+   5. DRAWER VARIANT (slide-in panel from the right)
+   ========================================================================== */
+
+.modal-backdrop.drawer-backdrop {
+  justify-content: flex-end;
+  padding: 0;
+  background-color: rgba(10, 35, 64, 0.4);
+}
+
+.modal-drawer {
+  max-width: 420px;
+  height: 100%;
+  max-height: 100%;
+  border-radius: 0;
+  transform: translateX(100%);
+  opacity: 1;
+}
+
+.drawer-backdrop.is-open .modal-drawer {
+  transform: translateX(0);
+}
+
+.modal-drawer .modal-body {
+  flex: 1 1 auto;
+}
+
+/* ==========================================================================
+   6. RESPONSIVE
+   ========================================================================== */
+
+@media (max-width: 576px) {
+  .modal-backdrop {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .modal:not(.modal-drawer) {
+    max-width: 100%;
+    max-height: 92vh;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  }
+
+  .modal-drawer {
+    max-width: 100%;
+  }
+}
