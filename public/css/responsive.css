@@ -484,6 +484,45 @@ h4 {
 }
 
 /* ==========================================================================
+   6c. FOOTER — COLUMN PROGRESSION
+   ==========================================================================
+   Mobile = one stacked column (see style.css). Tablets get a 2-column
+   grid with the brand block spanning the full first row; desktops spread
+   everything across one row, giving the brand column extra width. */
+
+@media (min-width: 576px) {
+  .footer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .footer-brand-col {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 992px) {
+  .footer-grid {
+    grid-template-columns: 2fr 1fr 1fr 1.5fr;
+    gap: var(--space-10);
+  }
+
+  .footer-brand-col {
+    grid-column: auto;
+  }
+
+  .footer-inner {
+    padding-block: var(--space-16) var(--space-12);
+  }
+
+  .footer-bottom-inner {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    text-align: left;
+  }
+}
+
+/* ==========================================================================
    7. DASHBOARD GRID COLUMN PROGRESSION
    ==========================================================================
    1 column (mobile, set in layout.css) → 2 columns (sm/md) → full target
@@ -559,16 +598,30 @@ h4 {
     justify-content: center;
   }
 
-  .app-shell.sidebar-collapsed .sidebar-link span,
+  .app-shell.sidebar-collapsed .sidebar-link-label,
+  .app-shell.sidebar-collapsed .sidebar-link-badge,
   .app-shell.sidebar-collapsed .sidebar-nav-group-title,
-  .app-shell.sidebar-collapsed .sidebar-header span {
+  .app-shell.sidebar-collapsed .sidebar-brand-text,
+  .app-shell.sidebar-collapsed .sidebar-user-info,
+  .app-shell.sidebar-collapsed .sidebar-logout span {
     display: none;
   }
 
+  .app-shell.sidebar-collapsed .sidebar-footer {
+    justify-content: center;
+  }
+
   /* Hamburger/menu button that opens the mobile drawer is redundant once
-     the sidebar is permanently visible. */
-  .sidebar-toggle-mobile {
+     the sidebar is permanently visible; the close (X) button inside the
+     sidebar itself is equally redundant. The collapse-rail toggle, on the
+     other hand, only makes sense once the sidebar is a permanent column. */
+  .sidebar-toggle-mobile,
+  .sidebar-close-toggle {
     display: none !important;
+  }
+
+  .sidebar-collapse-toggle {
+    display: inline-flex !important;
   }
 }
 

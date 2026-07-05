@@ -4,8 +4,9 @@
    1. Modern CSS reset
    2. Base element defaults (body, links, lists, images, headings)
    3. Navbar (shared site-wide navigation component)
+   4. Footer (shared site-wide footer component)
    Depends on variables.css. Mobile-first — breakpoint overrides for the
-   navbar's mobile menu live in responsive.css.
+   navbar's mobile menu and the footer's column grid live in responsive.css.
    ========================================================================== */
 
 /* ==========================================================================
@@ -313,4 +314,190 @@ textarea:focus-visible,
 
 .navbar-actions .btn {
   width: 100%;
+}
+
+/* ==========================================================================
+   4. FOOTER
+   ==========================================================================
+   Mobile-first: base = a single stacked column (brand, link groups,
+   contact, bottom bar). From `md` (768px) up the link groups arrange into
+   a multi-column grid — see responsive.css. */
+
+.footer {
+  background-color: var(--color-primary);
+  color: var(--color-primary-100);
+  border-top: 1px solid rgba(208, 144, 24, 0.25);
+}
+
+.footer-inner {
+  padding-block: var(--space-12) var(--space-8);
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-8);
+}
+
+/* --- Brand / mission --- */
+.footer-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--color-text-inverse);
+}
+
+.footer-brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  flex-shrink: 0;
+  border: 2px solid var(--color-secondary);
+  border-radius: var(--radius-md);
+  font-family: var(--font-family-heading);
+  font-weight: var(--font-weight-extrabold);
+  font-size: var(--font-size-md);
+  color: var(--color-secondary);
+}
+
+.footer-brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.footer-brand-title {
+  font-family: var(--font-family-heading);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-lg);
+  color: var(--color-text-inverse);
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.footer-brand-subtitle {
+  font-size: 0.6875rem;
+  color: var(--color-primary-200);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wider);
+  white-space: nowrap;
+}
+
+.footer-tagline {
+  margin-top: var(--space-4);
+  max-width: 36ch;
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-primary-200);
+}
+
+/* --- Social icons --- */
+.footer-social {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-5);
+}
+
+.footer-social-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-md);
+  color: var(--color-primary-200);
+  transition: background-color var(--transition-fast), color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.footer-social-link:hover {
+  background-color: var(--color-secondary);
+  border-color: var(--color-secondary);
+  color: var(--color-secondary-contrast);
+}
+
+.footer-social-link svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* --- Link columns --- */
+.footer-col-title {
+  margin-bottom: var(--space-4);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wider);
+  text-transform: uppercase;
+  color: var(--color-secondary);
+}
+
+.footer-links {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.footer-link {
+  font-size: var(--font-size-sm);
+  color: var(--color-primary-100);
+  transition: color var(--transition-fast);
+}
+
+.footer-link:hover {
+  color: var(--color-secondary);
+}
+
+/* --- Contact list --- */
+.footer-contact {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.footer-contact-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  font-size: var(--font-size-sm);
+  color: var(--color-primary-100);
+}
+
+.footer-contact-icon {
+  flex-shrink: 0;
+  width: 1.125rem;
+  height: 1.125rem;
+  margin-top: 0.125rem;
+  color: var(--color-secondary);
+}
+
+/* --- Bottom bar --- */
+.footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-bottom-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding-block: var(--space-5);
+  text-align: center;
+}
+
+.footer-copyright {
+  font-size: var(--font-size-xs);
+  color: var(--color-primary-200);
+}
+
+.footer-legal-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-4);
+}
+
+.footer-legal-links .footer-link {
+  font-size: var(--font-size-xs);
 }

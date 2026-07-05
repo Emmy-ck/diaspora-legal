@@ -226,6 +226,100 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+.sidebar-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--color-text-inverse);
+  min-width: 0;
+}
+
+.sidebar-brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 2px solid var(--color-secondary);
+  border-radius: var(--radius-md);
+  font-family: var(--font-family-heading);
+  font-weight: var(--font-weight-extrabold);
+  font-size: var(--font-size-sm);
+  color: var(--color-secondary);
+}
+
+.sidebar-brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+  overflow: hidden;
+}
+
+.sidebar-brand-title {
+  font-family: var(--font-family-heading);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-base);
+  color: var(--color-text-inverse);
+  white-space: nowrap;
+}
+
+.sidebar-brand-subtitle {
+  font-size: 0.6875rem;
+  color: var(--color-primary-200);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wider);
+  white-space: nowrap;
+}
+
+/* Desktop icon-rail collapse toggle + mobile close (X) button.
+   Mobile-first: only the close button is shown by default; the collapse
+   toggle is a desktop-only affordance switched on in responsive.css. */
+.sidebar-collapse-toggle,
+.sidebar-close-toggle {
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  margin-left: auto;
+  border-radius: var(--radius-md);
+  color: var(--color-primary-200);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.sidebar-close-toggle {
+  display: inline-flex;
+}
+
+.sidebar-collapse-toggle {
+  display: none;
+}
+
+.sidebar-collapse-toggle:hover,
+.sidebar-close-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: var(--color-text-inverse);
+}
+
+.sidebar-collapse-toggle svg,
+.sidebar-close-toggle svg {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.sidebar-collapse-toggle .icon-expand {
+  display: none;
+}
+
+.app-shell.sidebar-collapsed .sidebar-collapse-toggle .icon-collapse {
+  display: none;
+}
+
+.app-shell.sidebar-collapsed .sidebar-collapse-toggle .icon-expand {
+  display: block;
+}
+
 .sidebar-nav {
   flex: 1 1 auto;
   padding: var(--space-4) var(--space-3);
@@ -234,8 +328,16 @@
   gap: var(--space-1);
 }
 
+/* Wraps each role's link set (client/lawyer/admin); JS toggles the
+   `hidden` attribute on these based on the signed-in user's role. */
+.sidebar-nav-role {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
 .sidebar-nav-group-title {
-  padding: var(--space-3) var(--space-3) var(--space-2);
+  padding: var(--space-4) var(--space-3) var(--space-2);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
   letter-spacing: var(--letter-spacing-wider);
@@ -243,7 +345,12 @@
   color: var(--color-primary-200);
 }
 
+.sidebar-nav-role > .sidebar-nav-group-title:first-child {
+  padding-top: var(--space-2);
+}
+
 .sidebar-link {
+  position: relative;
   display: flex;
   align-items: center;
   gap: var(--space-3);
@@ -266,14 +373,132 @@
   font-weight: var(--font-weight-semibold);
 }
 
+.sidebar-link-icon {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.sidebar-link-label {
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-link-badge {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding-inline: var(--space-1);
+  border-radius: var(--radius-full);
+  background-color: var(--color-secondary);
+  color: var(--color-secondary-contrast);
+  font-size: 0.6875rem;
+  font-weight: var(--font-weight-bold);
+}
+
+.sidebar-link.active .sidebar-link-badge {
+  background-color: var(--color-primary);
+  color: var(--color-text-inverse);
+}
+
+.sidebar-divider {
+  height: 1px;
+  margin: var(--space-3) var(--space-3);
+  background-color: rgba(255, 255, 255, 0.08);
+  border: none;
+}
+
+/* --- Footer: signed-in user summary + logout --- */
 .sidebar-footer {
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
   padding: var(--space-4) var(--space-5);
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* Note: the "collapsed" icon-rail sidebar state is a desktop-only affordance
-   (mobile uses the open/closed drawer above instead) — see responsive.css. */
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.sidebar-user-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius-full);
+  background-color: var(--color-secondary);
+  color: var(--color-secondary-contrast);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-sm);
+  overflow: hidden;
+}
+
+.sidebar-user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sidebar-user-info {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.sidebar-user-name {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-inverse);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-user-role {
+  font-size: var(--font-size-xs);
+  color: var(--color-primary-200);
+  text-transform: capitalize;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-logout {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius-md);
+  color: var(--color-primary-200);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.sidebar-logout:hover {
+  background-color: var(--color-error);
+  color: var(--color-white);
+}
+
+.sidebar-logout svg {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+/* Note: the "collapsed" icon-rail state (hiding labels, centering icons)
+   only takes visual effect at desktop widths — see responsive.css, which
+   also gates when the collapse toggle itself is even visible. */
 
 /* ==========================================================================
    5. DASHBOARD LAYOUT

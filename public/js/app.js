@@ -139,19 +139,142 @@ window.DLSS = window.DLSS || {};
   });
 
   /* ==========================================================================
+     FOOTER
+     ==========================================================================
+     The footer is static apart from the copyright year, which is kept
+     current automatically so it never goes stale. */
+
+  function initFooter() {
+    const year = document.getElementById('footerYear');
+    if (year) year.textContent = String(new Date().getFullYear());
+  }
+
+  document.addEventListener('dlss:component-loaded', (event) => {
+    if (event.detail.name === 'footer') initFooter();
+  });
+
+  /* ==========================================================================
+     SIDEBAR
+     ==========================================================================
+     Handles: role-scoped link visibility, active-link highlighting by URL,
+     the mobile off-canvas drawer (open/close/backdrop/Escape), the
+     desktop icon-rail collapse toggle (persisted), and logout.
+
+     Uses event delegation on `document` so it works whether the sidebar
+     was already in the page markup or injected later via `loadIncludes()`.
+     A `.sidebar-toggle-mobile` button can live anywhere on the page (e.g.
+     a dashboard topbar) and will open the drawer. */
+
+  const SIDEBAR_COLLAPSED_KEY = 'dlss:sidebar-collapsed';
+
+  function initSidebar() {
+    const appShell = document.querySelector('.app-shell');
+    const sidebar = document.getElementById('sidebar');
+    if (!sidebar) return;
+
+    // --- Role-scoped nav: show only the link set for the signed-in user.
+    // TODO: once auth.js exists, source this from the session instead of
+    // `body[data-role]` (which defaults to "client" for now).
+    const role = document.body.getAttribute('data-role') || 'client';
+    sidebar.querySelectorAll('.sidebar-nav-role[data-role-nav]').forEach((group) => {
+      group.hidden = group.getAttribute('data-role-nav') !== role;
+    });
+
+    // --- Active link: match against the current URL rather than relying
+    // on per-page data attributes, so every dashboard page "just works".
+    const currentPath = window.location.pathname.replace(/\/index\.html$/, '/');
+    sidebar.querySelectorAll('.sidebar-link[href]').forEach((link) => {
+      const linkPath = new URL(link.getAttribute('href'), window.location.origin).pathname;
+      const isActive = linkPath === currentPath;
+      link.classList.toggle('active', isActive);
+      if (isActive) {
+        link.setAttribute('aria-current', 'page');
+      } else {
+        link.removeAttribute('aria-current');
+      }
+    });
+
+    // --- Mobile drawer open/close.
+    const openDrawer = () => {
+      if (!appShell) return;
+      appShell.classList.add('sidebar-open');
+    };
+
+    const closeDrawer = () => {
+      if (!appShell) return;
+      appShell.classList.remove('sidebar-open');
+    };
+
+    document.addEventListener('click', (event) => {
+      if (event.target.closest('.sidebar-toggle-mobile')) {
+        openDrawer();
+        return;
+      }
+      if (event.target.closest('#sidebarCloseToggle') || event.target.closest('#sidebarBackdrop')) {
+        closeDrawer();
+        return;
+      }
+      // Tapping a link inside the drawer on mobile should close it.
+      if (event.target.closest('.sidebar-link') && window.innerWidth < 992) {
+        closeDrawer();
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') closeDrawer();
+    });
+
+    window.addEventListener('resize', () => {
+      if (window.innerWidth >= 992) closeDrawer();
+    });
+
+    // --- Desktop icon-rail collapse, persisted across visits.
+    if (appShell) {
+      appShell.classList.toggle('sidebar-collapsed', localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === 'true');
+    }
+
+    document.addEventListener('click', (event) => {
+      if (!event.target.closest('#sidebarCollapseToggle') || !appShell) return;
+      const collapsed = appShell.classList.toggle('sidebar-collapsed');
+      localStorage.setItem(SIDEBAR_COLLAPSED_KEY, String(collapsed));
+    });
+
+    // --- Logout.
+    // TODO: once auth.js exists, clear the real session/token there instead.
+    document.addEventListener('click', (event) => {
+      if (!event.target.closest('#sidebarLogout')) return;
+      localStorage.removeItem('dlss:token');
+      localStorage.removeItem('dlss:user');
+      window.location.href = '/pages/auth/login.html';
+    });
+  }
+
+  document.addEventListener('dlss:component-loaded', (event) => {
+    if (event.detail.name === 'sidebar') initSidebar();
+  });
+
+  /* ==========================================================================
      BOOTSTRAP
      ========================================================================== */
 
   document.addEventListener('DOMContentLoaded', () => {
     loadIncludes();
 
-    // If the navbar markup is already inlined in the page (rather than
-    // loaded via data-include), initialize it immediately too.
+    // If the navbar/sidebar markup is already inlined in the page (rather
+    // than loaded via data-include), initialize it immediately too.
     if (document.getElementById('navbar') && !document.querySelector('[data-include="navbar"]')) {
       initNavbar();
+    }
+    if (document.getElementById('sidebar') && !document.querySelector('[data-include="sidebar"]')) {
+      initSidebar();
+    }
+    if (document.getElementById('footer') && !document.querySelector('[data-include="footer"]')) {
+      initFooter();
     }
   });
 
   window.DLSS.loadIncludes = loadIncludes;
   window.DLSS.initNavbar = initNavbar;
+  window.DLSS.initFooter = initFooter;
+  window.DLSS.initSidebar = initSidebar;
 })();
