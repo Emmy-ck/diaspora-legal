@@ -1050,6 +1050,187 @@ window.DLSS = window.DLSS || {};
   };
 
   /* ==========================================================================
+     PAGINATION LIBRARY
+     ==========================================================================
+     Splits a long list into pages: a result-count summary, numbered page
+     buttons (with smart ellipsis) collapsing to a compact "Page X of Y"
+     label on mobile, previous/next controls, and a page-size changer. See
+     components/pagination.html for the full usage guide + the markup
+     this drives. Unlike Modal/Loader (fixed singleton slots), a page can
+     have several independent pagination bars, so this is a small
+     factory rather than a single global instance:
+
+       const pager = DLSS.Pagination.create(container, {
+         totalItems: 248, pageSize: 10, itemLabel: 'cases',
+         onChange({ page, pageSize }) { loadCases({ page, pageSize }); },
+       });
+       pager.update({ totalItems: 240 });   // resync after data changes
+       pager.getState();                    // { page, pageSize, totalPages, totalItems }
+       pager.destroy();                     // remove its DOM + listeners */
+
+  /* Classic "boundary + siblings" page-range algorithm — returns page
+     numbers plus the string 'dots' wherever a gap collapses into an
+     ellipsis, e.g. getPageRange(6, 20, 1) -> [1,'dots',5,6,7,'dots',20]. */
+  function getPageRange(current, total, siblingCount) {
+    const totalSlots = siblingCount * 2 + 5; // first + last + current + 2*siblings + 2*ellipsis
+    if (total <= totalSlots) {
+      return Array.from({ length: total }, (_, i) => i + 1);
+    }
+
+    const leftSibling = Math.max(current - siblingCount, 1);
+    const rightSibling = Math.min(current + siblingCount, total);
+    const showLeftDots = leftSibling > 2;
+    const showRightDots = rightSibling < total - 1;
+
+    if (!showLeftDots && showRightDots) {
+      const leftCount = 3 + siblingCount * 2;
+      return [...Array.from({ length: leftCount }, (_, i) => i + 1), 'dots', total];
+    }
+    if (showLeftDots && !showRightDots) {
+      const rightCount = 3 + siblingCount * 2;
+      return [1, 'dots', ...Array.from({ length: rightCount }, (_, i) => total - rightCount + 1 + i)];
+    }
+    return [
+      1,
+      'dots',
+      ...Array.from({ length: rightSibling - leftSibling + 1 }, (_, i) => leftSibling + i),
+      'dots',
+      total,
+    ];
+  }
+
+  function createPagination(container, options = {}) {
+    const template = document.getElementById('paginationTemplate');
+    if (!container || !template) {
+      console.warn('[DLSS] Pagination markup not found — include components/pagination.html.');
+      return { update() {}, goTo() {}, getState: () => ({}), destroy() {} };
+    }
+
+    const state = {
+      page: Math.max(1, options.currentPage || 1),
+      pageSize: options.pageSize || 10,
+      totalItems: options.totalItems || 0,
+      pageSizeOptions: options.pageSizeOptions || [10, 25, 50, 100],
+      siblingCount: options.siblingCount || 1,
+      itemLabel: options.itemLabel || 'results',
+      onChange: typeof options.onChange === 'function' ? options.onChange : () => {},
+    };
+
+    const nav = template.content.firstElementChild.cloneNode(true);
+    container.innerHTML = '';
+    container.appendChild(nav);
+
+    const els = {
+      summary: nav.querySelector('.pagination-summary'),
+      prevBtn: nav.querySelector('[data-page-prev]'),
+      nextBtn: nav.querySelector('[data-page-next]'),
+      list: nav.querySelector('.pagination-list'),
+      compactLabel: nav.querySelector('.pagination-compact-label'),
+      sizeSelect: nav.querySelector('[data-page-size]'),
+    };
+
+    els.sizeSelect.innerHTML = state.pageSizeOptions
+      .map((size) => `<option value="${size}">${size}</option>`)
+      .join('');
+
+    const totalPages = () => Math.max(1, Math.ceil(state.totalItems / state.pageSize));
+    const clampPage = () => {
+      state.page = Math.min(Math.max(1, state.page), totalPages());
+    };
+
+    function render() {
+      clampPage();
+      const pages = totalPages();
+      const isEmpty = state.totalItems === 0;
+      nav.classList.toggle('is-empty', isEmpty);
+
+      const start = isEmpty ? 0 : (state.page - 1) * state.pageSize + 1;
+      const end = isEmpty ? 0 : Math.min(state.page * state.pageSize, state.totalItems);
+      els.summary.innerHTML = isEmpty
+        ? `No ${state.itemLabel} found.`
+        : `Showing <strong>${start}\u2013${end}</strong> of <strong>${state.totalItems}</strong> ${state.itemLabel}`;
+
+      if (isEmpty) return;
+
+      els.prevBtn.disabled = state.page <= 1;
+      els.nextBtn.disabled = state.page >= pages;
+      els.compactLabel.textContent = `Page ${state.page} of ${pages}`;
+
+      els.list.innerHTML = '';
+      getPageRange(state.page, pages, state.siblingCount).forEach((entry) => {
+        const li = document.createElement('li');
+        if (entry === 'dots') {
+          li.innerHTML = '<span class="pagination-ellipsis" aria-hidden="true">\u2026</span>';
+        } else {
+          const isActive = entry === state.page;
+          li.innerHTML = `<button type="button" class="pagination-btn pagination-page${isActive ? ' is-active' : ''}" data-page="${entry}"${isActive ? ' aria-current="page"' : ''}>${entry}</button>`;
+        }
+        els.list.appendChild(li);
+      });
+
+      els.sizeSelect.value = String(state.pageSize);
+    }
+
+    function goTo(page) {
+      const next = Math.min(Math.max(1, page), totalPages());
+      if (next === state.page) return;
+      state.page = next;
+      render();
+      state.onChange({ page: state.page, pageSize: state.pageSize });
+    }
+
+    function onNavClick(event) {
+      const pageBtn = event.target.closest('[data-page]');
+      if (pageBtn) {
+        goTo(Number(pageBtn.dataset.page));
+        return;
+      }
+      if (event.target.closest('[data-page-prev]')) {
+        goTo(state.page - 1);
+        return;
+      }
+      if (event.target.closest('[data-page-next]')) {
+        goTo(state.page + 1);
+      }
+    }
+
+    function onSizeChange(event) {
+      state.pageSize = Number(event.target.value) || state.pageSize;
+      state.page = 1;
+      render();
+      state.onChange({ page: state.page, pageSize: state.pageSize });
+    }
+
+    nav.addEventListener('click', onNavClick);
+    els.sizeSelect.addEventListener('change', onSizeChange);
+
+    render();
+
+    return {
+      update({ totalItems, currentPage, pageSize } = {}) {
+        if (totalItems !== undefined) state.totalItems = totalItems;
+        if (pageSize !== undefined) state.pageSize = pageSize;
+        if (currentPage !== undefined) state.page = currentPage;
+        render();
+      },
+      goTo,
+      getState: () => ({
+        page: state.page,
+        pageSize: state.pageSize,
+        totalPages: totalPages(),
+        totalItems: state.totalItems,
+      }),
+      destroy() {
+        nav.removeEventListener('click', onNavClick);
+        els.sizeSelect.removeEventListener('change', onSizeChange);
+        nav.remove();
+      },
+    };
+  }
+
+  window.DLSS.Pagination = { create: createPagination };
+
+  /* ==========================================================================
      BOOTSTRAP
      ========================================================================== */
 

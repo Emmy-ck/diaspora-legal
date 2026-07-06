@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Pagination Component — Test Harness</title>
+<link rel="stylesheet" href="/css/variables.css" />
+<link rel="stylesheet" href="/css/style.css" />
+<link rel="stylesheet" href="/css/layout.css" />
+<link rel="stylesheet" href="/css/buttons.css" />
+<link rel="stylesheet" href="/css/forms.css" />
+<link rel="stylesheet" href="/css/tables.css" />
+<link rel="stylesheet" href="/css/pagination.css" />
+<link rel="stylesheet" href="/css/loader.css" />
+<link rel="stylesheet" href="/css/animations.css" />
+<link rel="stylesheet" href="/css/responsive.css" />
+</head>
+<body data-role="client" style="padding: var(--space-8);">
+<h1 style="margin-bottom: var(--space-6);">Pagination Component — Test Harness</h1>
+
+<div class="table-container" style="max-width: 720px; margin-bottom: var(--space-10);">
+  <div class="table-responsive">
+    <table class="table">
+      <thead><tr><th>Case #</th><th>Client</th><th>Status</th></tr></thead>
+      <tbody id="caseRows"></tbody>
+    </table>
+  </div>
+  <div class="table-footer">
+    <div id="casesPagination"></div>
+  </div>
+</div>
+
+<h2 style="margin-bottom: var(--space-4);">Second, independent instance (small dataset)</h2>
+<div id="lawyersPagination" style="max-width: 480px; padding: var(--space-4); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg);"></div>
+
+<div data-include="loader"></div>
+<div data-include="pagination"></div>
+
+<script src="/js/app.js" defer></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const TOTAL_CASES = 237;
+
+    function renderCaseRows(page, pageSize) {
+      const tbody = document.getElementById('caseRows');
+      tbody.innerHTML = '';
+      const start = (page - 1) * pageSize;
+      const end = Math.min(start + pageSize, TOTAL_CASES);
+      for (let i = start; i < end; i++) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>CASE-${1000 + i}</td><td>Client ${i + 1}</td><td>Open</td>`;
+        tbody.appendChild(tr);
+      }
+    }
+
+    const casesPager = DLSS.Pagination.create(document.getElementById('casesPagination'), {
+      totalItems: TOTAL_CASES,
+      pageSize: 10,
+      itemLabel: 'cases',
+      onChange({ page, pageSize }) {
+        renderCaseRows(page, pageSize);
+      },
+    });
+    renderCaseRows(1, 10);
+
+    // Second instance: fewer total items than the smallest page size, to
+    // verify the empty/degenerate-page-count paths.
+    const lawyersPager = DLSS.Pagination.create(document.getElementById('lawyersPagination'), {
+      totalItems: 4,
+      pageSize: 10,
+      itemLabel: 'lawyers',
+      onChange(state) {
+        console.log('lawyers page change', state);
+      },
+    });
+
+    window.casesPager = casesPager;
+    window.lawyersPager = lawyersPager;
+  });
+</script>
+</body>
+</html>

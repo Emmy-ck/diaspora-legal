@@ -3,23 +3,24 @@
    ==========================================================================
    The entire design system is authored mobile-first: every base rule in
    variables.css / layout.css / buttons.css / forms.css / cards.css /
-   tables.css / modal.css / notifications.css / loader.css targets a
-   small phone screen by default. This file is the ONLY place
-   breakpoints are introduced, and it exclusively uses `min-width` media
-   queries — never `max-width` — so a phone always gets the simplest,
-   safest layout, and larger screens progressively gain more columns,
-   more chrome, and more breathing room.
+   tables.css / modal.css / notifications.css / loader.css /
+   pagination.css targets a small phone screen by default. This file is
+   the ONLY place breakpoints are introduced, and it exclusively uses
+   `min-width` media queries — never `max-width` — so a phone always
+   gets the simplest, safest layout, and larger screens progressively
+   gain more columns, more chrome, and more breathing room.
 
    ⚠ LOAD ORDER: this stylesheet must be linked LAST in index.html, after
    every other CSS file. A number of rules below share the exact same
    selector and specificity as rules in layout.css/forms.css/modal.css/
-   tables.css/notifications.css (e.g. `.sidebar`, `.form-actions`,
-   `.table-toolbar`, `.toast-container`) — CSS only lets the
-   breakpoint-specific version win if it is later in source order.
-   Suggested `<link>` order:
+   tables.css/notifications.css/pagination.css (e.g. `.sidebar`,
+   `.form-actions`, `.table-toolbar`, `.toast-container`,
+   `.pagination`) — CSS only lets the breakpoint-specific version win if
+   it is later in source order. Suggested `<link>` order:
      variables.css → style.css → layout.css → buttons.css → forms.css →
      cards.css → tables.css → modal.css → notifications.css → loader.css →
-     dashboard.css → animations.css → responsive.css (last)
+     pagination.css → dashboard.css → animations.css →
+     responsive.css (last)
 
    Breakpoints (kept in sync with variables.css custom properties, which
    can't be read inside @media conditions):
@@ -848,5 +849,46 @@ h4 {
     transform: none;
     width: 100%;
     max-width: 380px;
+  }
+}
+
+/* ==========================================================================
+   12. PAGINATION — DESKTOP LAYOUT (md, 768px+)
+   ==========================================================================
+   Mobile default (css/pagination.css) stacks summary / controls / size
+   changer centered, and shows the compact "Page X of Y" label instead of
+   numbered buttons. From `md` up it becomes a single row — summary left,
+   numbered pages center, size changer right — and the compact label
+   swaps for the full numbered list. */
+
+@media (min-width: 768px) {
+  .pagination {
+    flex-wrap: nowrap;
+    justify-content: space-between;
+  }
+
+  .pagination-summary {
+    order: 1;
+    flex: 0 1 auto;
+    text-align: left;
+  }
+
+  .pagination-controls {
+    order: 2;
+    flex: 1 1 auto;
+  }
+
+  .pagination-size {
+    order: 3;
+    flex: 0 0 auto;
+    justify-content: flex-end;
+  }
+
+  .pagination-compact-label {
+    display: none;
+  }
+
+  .pagination-list {
+    display: flex;
   }
 }
