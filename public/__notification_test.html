@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Notification Component — Test Harness</title>
+<link rel="stylesheet" href="/css/variables.css" />
+<link rel="stylesheet" href="/css/style.css" />
+<link rel="stylesheet" href="/css/layout.css" />
+<link rel="stylesheet" href="/css/buttons.css" />
+<link rel="stylesheet" href="/css/notifications.css" />
+<link rel="stylesheet" href="/css/animations.css" />
+<link rel="stylesheet" href="/css/responsive.css" />
+</head>
+<body data-role="client" style="padding: var(--space-8);">
+<h1 style="margin-bottom: var(--space-6);">Notification Component — Test Harness</h1>
+<div style="display:flex; flex-wrap:wrap; gap: var(--space-3);">
+  <button class="btn btn-success" data-toast="success">Consultation booked</button>
+  <button class="btn btn-danger" data-toast="error">Payment failed</button>
+  <button class="btn btn-outline" data-toast="warning">Session expiring</button>
+  <button class="btn btn-secondary" data-toast="info">New message</button>
+  <button class="btn btn-outline" data-toast="persist">Critical (persist)</button>
+  <button class="btn btn-outline" data-toast="actions">With actions</button>
+  <button class="btn btn-outline" data-toast="flood">Fire 8 (test queue)</button>
+  <button class="btn btn-outline-danger" data-toast="clear">Clear all</button>
+</div>
+
+<div data-include="notification"></div>
+
+<script src="/js/app.js" defer></script>
+<script src="/js/notifications.js" defer></script>
+<script>
+  document.addEventListener('click', (event) => {
+    const trigger = event.target.closest('[data-toast]');
+    if (!trigger) return;
+    const kind = trigger.getAttribute('data-toast');
+
+    switch (kind) {
+      case 'success':
+        DLSS.Notify.success('Consultation booked successfully.');
+        break;
+      case 'error':
+        DLSS.Notify.error('Payment could not be processed. Please try again.', {
+          actions: [{ label: 'Retry', onClick: () => DLSS.Notify.info('Retrying payment…') }],
+        });
+        break;
+      case 'warning':
+        DLSS.Notify.warning('Your session will expire in 2 minutes.', { persist: true });
+        break;
+      case 'info':
+        DLSS.Notify.info('Your advocate has uploaded a new legal document.', {
+          actions: [{ label: 'View Details', href: '/pages/client/documents.html' }],
+        });
+        break;
+      case 'persist':
+        DLSS.Notify.error('Network connection lost.', { persist: true, title: 'Connection Lost' });
+        break;
+      case 'actions':
+        DLSS.Notify.info('Consultation request awaiting confirmation.', {
+          title: 'Consultation Update',
+          actions: [
+            { label: 'Open Case', href: '#' },
+            { label: 'Undo', onClick: () => DLSS.Notify.success('Undone.') },
+          ],
+        });
+        break;
+      case 'flood':
+        for (let i = 1; i <= 8; i++) {
+          DLSS.Notify.info(`Queued notification #${i}`, { duration: 2500 });
+        }
+        break;
+      case 'clear':
+        DLSS.Notify.clearAll();
+        break;
+    }
+  });
+</script>
+</body>
+</html>

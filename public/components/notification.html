@@ -1,0 +1,65 @@
+<!--
+  DLSS Notification (Toast) Component — real-time, non-blocking feedback.
+
+  Purpose: brief, clear, actionable alerts for actions/events/reminders
+  (Success, Error, Warning, Information) that never interrupt the page
+  the way a modal does. For persistent, review-later updates use the
+  notification center page instead (pages/*/notifications.html) — this
+  component is only the live, auto-dismissing toast stack.
+
+  Usage: include this fragment once per page (e.g.
+  `<div data-include="notification"></div>` right before the closing
+  `</body>`, alongside every other data-include) together with
+  css/notifications.css and js/notifications.js. Toasts are rendered
+  entirely from JS — this fragment only provides the live region they
+  are injected into and the <template> each one is cloned from.
+
+  FIRING A NOTIFICATION (see js/notifications.js for the full API)
+  --------------------------------------------------
+    DLSS.Notify.success('Consultation booked successfully.');
+    DLSS.Notify.error('Payment failed.', { title: 'Payment Failed' });
+    DLSS.Notify.warning('Your session will expire in 2 minutes.', { persist: true });
+    DLSS.Notify.info('Your advocate has uploaded a new legal document.', {
+      actions: [{ label: 'View Details', href: '/pages/client/documents.html' }],
+    });
+
+  Every call accepts a plain string (the message) or an options object:
+    { title, message, actions, duration, persist, onClick }
+      title     - defaults to "Success" / "Error" / "Warning" / "Notice"
+      actions   - [{ label, href, onClick, keepOpen }] rendered as buttons
+                  inside the toast (e.g. View Details, Undo, Retry, Pay
+                  Now, Open Case)
+      duration  - ms before auto-dismiss (type-based default otherwise)
+      persist   - true disables auto-dismiss entirely (critical alerts)
+      onClick   - fires when the toast body itself is clicked/activated
+
+  BEHAVIOR
+  --------------------------------------------------
+  Stacks up to 5 toasts at once (extras queue and appear as older ones
+  are dismissed), auto-dismisses after a type-based delay unless
+  `persist` is set, pauses that timer on hover/keyboard focus, and can
+  always be dismissed early with the close (×) button. Escape dismisses
+  a focused toast. Positioned top-center on mobile and top-right on
+  desktop (see responsive.css) so it never obstructs page content.
+-->
+<div id="notificationRoot" data-component="notification">
+  <div class="toast-container" id="toastContainer" role="region" aria-label="Notifications" aria-live="polite"></div>
+
+  <template id="toastTemplate">
+    <div class="toast" tabindex="-1">
+      <div class="toast-icon" aria-hidden="true"></div>
+      <div class="toast-content">
+        <p class="toast-title"></p>
+        <p class="toast-message"></p>
+        <div class="toast-meta">
+          <span class="toast-timestamp"></span>
+        </div>
+        <div class="toast-actions" hidden></div>
+      </div>
+      <button type="button" class="toast-close" aria-label="Dismiss notification">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15"/></svg>
+      </button>
+      <div class="toast-progress"></div>
+    </div>
+  </template>
+</div>

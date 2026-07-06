@@ -1,0 +1,49 @@
+/* ==========================================================================
+   DLSS — Shared Animations
+   ==========================================================================
+   Reusable keyframes referenced by name from other stylesheets (e.g.
+   css/notifications.css). Component-specific one-off keyframes belong
+   in that component's own stylesheet instead — only put an animation
+   here once more than one component needs it, or it's generic enough
+   that another one likely will.
+   ========================================================================== */
+
+/* --- Toast (css/notifications.css): slide + fade in on entry, and a
+   quicker fade + collapse on dismiss. --- */
+@keyframes toast-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toast-fade-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+}
+
+/* --- Generic utility fades, available to any component. --- */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
