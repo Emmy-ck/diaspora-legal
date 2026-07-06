@@ -5,8 +5,7 @@
    these custom properties instead of hard-coding raw values, so the whole
    UI can be re-themed from this single file.
 
-   Brand colors (navy, gold, bronze, cream) were sampled directly from the
-   official DLSS brand artwork.
+   Brand colors (navy, gold, bronze, cream)
    ========================================================================== */
 
 :root {
