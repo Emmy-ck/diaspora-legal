@@ -364,7 +364,12 @@ body.has-sidebar-toggle .navbar-sidebar-toggle {
   transform: translateY(-7px) rotate(-45deg);
 }
 
-/* --- Collapsible menu (mobile: dropdown panel) --- */
+/* --- Collapsible menu (mobile: dropdown panel) ---
+   `max-height` + `overflow: hidden` on the base rule is purely to animate
+   the open/close transition; once `.is-open`, overflow switches to
+   `auto` so the (now much taller, thanks to the "Services" mega-menu)
+   content scrolls within the viewport instead of clipping on short
+   phones. */
 .navbar-menu {
   position: absolute;
   top: 100%;
@@ -386,7 +391,8 @@ body.has-sidebar-toggle .navbar-sidebar-toggle {
 }
 
 .navbar-menu.is-open {
-  max-height: 34rem;
+  max-height: calc(100vh - var(--header-height));
+  overflow-y: auto;
   opacity: 1;
   visibility: visible;
 }
@@ -477,6 +483,88 @@ body.has-sidebar-toggle .navbar-sidebar-toggle {
   flex-shrink: 0;
   width: 1.125rem;
   height: 1.125rem;
+}
+
+/* --- Mega menu (e.g. "Services", with many categories/sub-links) ---
+   Mobile: a nested accordion — each category is its own collapsible
+   group inside the "Services" accordion. Desktop (lg+): a full-width,
+   multi-column panel with every category permanently expanded — see
+   responsive.css. */
+.navbar-mega {
+  /* Shares `.navbar-dropdown`'s outside-click/close handling in app.js,
+     but must stay unpositioned so `.navbar-mega-panel` (full-width on
+     desktop) sizes against `.navbar-inner` instead of just this `<li>`. */
+  position: static;
+}
+
+.navbar-mega-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: var(--space-1) 0 var(--space-2) var(--space-3);
+  padding-left: var(--space-3);
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.navbar-mega-panel[hidden] {
+  display: none;
+}
+
+.navbar-mega-col-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--color-text-inverse);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  transition: background-color var(--transition-fast);
+}
+
+.navbar-mega-col-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.navbar-mega-col-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.navbar-mega-col-toggle-label svg {
+  flex-shrink: 0;
+  width: 1.125rem;
+  height: 1.125rem;
+  color: var(--color-secondary);
+}
+
+.navbar-mega-col-chevron {
+  flex-shrink: 0;
+  width: 0.875rem;
+  height: 0.875rem;
+  transition: transform var(--transition-fast);
+}
+
+.navbar-mega-col-toggle[aria-expanded='true'] .navbar-mega-col-chevron {
+  transform: rotate(180deg);
+}
+
+.navbar-mega-col-list {
+  display: none;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0 0 var(--space-2) var(--space-3);
+  padding-left: var(--space-3);
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.navbar-mega-col-list.is-open {
+  display: flex;
 }
 
 .navbar-actions {

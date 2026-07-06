@@ -505,6 +505,59 @@ h4 {
     box-shadow: var(--shadow-xl);
   }
 
+  /* --- Mega menu (e.g. "Services"): full-width, multi-column, every
+     category permanently expanded — the per-category toggle becomes an
+     inert heading (its accordion behavior only makes sense on mobile,
+     where vertical space is scarce). --- */
+  .navbar-mega-panel {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: var(--z-index-dropdown);
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--space-6);
+    margin: 0;
+    padding: var(--space-6) var(--container-padding);
+    border: 0;
+    border-top: 1px solid rgba(208, 144, 24, 0.25);
+    background-color: var(--color-primary-600);
+    box-shadow: var(--shadow-xl);
+  }
+
+  .navbar-mega-col {
+    flex: 1 1 170px;
+    min-width: 170px;
+  }
+
+  .navbar-mega-col-toggle {
+    pointer-events: none;
+    padding: 0 var(--space-3) var(--space-3);
+  }
+
+  .navbar-mega-col-toggle:hover {
+    background-color: transparent;
+  }
+
+  .navbar-mega-col-toggle-label {
+    font-size: var(--font-size-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--letter-spacing-wider);
+    color: var(--color-secondary);
+  }
+
+  .navbar-mega-col-chevron {
+    display: none;
+  }
+
+  .navbar-mega-col-list {
+    display: flex;
+    margin: 0;
+    padding-left: 0;
+    border-left: 0;
+  }
+
   .navbar-actions {
     flex-direction: row;
     align-items: center;

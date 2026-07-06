@@ -136,9 +136,11 @@ window.DLSS = window.DLSS || {};
     });
 
     // Dropdown toggles (e.g. "Services") have no `href` of their own, so
-    // highlight them when the current page matches their `data-active-prefix`.
+    // highlight them whenever the current page falls under their
+    // `data-active-prefix` (e.g. any `/pages/website/services/*` page).
     navbar.querySelectorAll('.navbar-dropdown-toggle[data-active-prefix]').forEach((toggle) => {
-      toggle.classList.toggle('active', currentPath === toggle.getAttribute('data-active-prefix'));
+      const prefix = toggle.getAttribute('data-active-prefix');
+      toggle.classList.toggle('active', currentPath === prefix || currentPath.startsWith(`${prefix}/`) || currentPath === `${prefix}.html`);
     });
 
     // --- Dynamically loaded user info + notification/message badges.
@@ -225,7 +227,24 @@ window.DLSS = window.DLSS || {};
         const menu = document.getElementById(toggle.getAttribute('aria-controls'));
         if (menu) menu.hidden = true;
         toggle.setAttribute('aria-expanded', 'false');
+        // Also collapse any mega-menu category accordions inside it, so
+        // it starts fresh (all categories collapsed) next time it opens.
+        menu?.querySelectorAll('.navbar-mega-col-toggle').forEach((colToggle) => {
+          colToggle.setAttribute('aria-expanded', 'false');
+          const colList = document.getElementById(colToggle.getAttribute('aria-controls'));
+          if (colList) colList.classList.remove('is-open');
+        });
       });
+    };
+
+    // --- Mega-menu category accordions (mobile only — see responsive.css,
+    // where `.navbar-mega-col-toggle` becomes inert and every category
+    // list stays permanently expanded from `lg` up).
+    const toggleMegaColumn = (toggle) => {
+      const list = document.getElementById(toggle.getAttribute('aria-controls'));
+      if (!list) return;
+      const isOpen = list.classList.toggle('is-open');
+      toggle.setAttribute('aria-expanded', String(isOpen));
     };
 
     document.addEventListener('click', (event) => {
@@ -273,6 +292,13 @@ window.DLSS = window.DLSS || {};
           dropdownMenu.hidden = !isOpen;
           dropdownToggle.setAttribute('aria-expanded', String(isOpen));
         }
+        return;
+      }
+
+      // Mega-menu category accordion (e.g. "Legal Advisory" inside "Services").
+      const megaColToggle = event.target.closest('.navbar-mega-col-toggle');
+      if (megaColToggle) {
+        toggleMegaColumn(megaColToggle);
         return;
       }
 
