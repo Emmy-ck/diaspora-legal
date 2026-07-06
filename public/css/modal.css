@@ -137,6 +137,40 @@
   padding-top: var(--space-2);
 }
 
+/* The last field in a modal form shouldn't leave trailing space before
+   the footer — avoids needing a one-off inline `margin-bottom: 0` on
+   whichever field happens to be last in each modal in components/modal.html. */
+.modal-body .form-group:last-child,
+.modal-body > form > .form-check:last-child {
+  margin-bottom: 0;
+}
+
+/* --- Small helpers used inside modal forms --- */
+.modal-form-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.modal-form-row .form-check {
+  margin-bottom: 0;
+}
+
+.modal-link {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-link);
+}
+
+.modal-link:hover {
+  color: var(--color-text-link-hover);
+}
+
+.form-label-hint {
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-regular);
+}
+
 .modal-footer {
   display: flex;
   flex-direction: column-reverse;
@@ -179,6 +213,11 @@
 .modal-confirm-icon.icon-warning { background-color: var(--color-warning-bg); color: var(--color-warning); }
 .modal-confirm-icon.icon-error { background-color: var(--color-error-bg); color: var(--color-error); }
 .modal-confirm-icon.icon-info { background-color: var(--color-info-bg); color: var(--color-info); }
+
+.modal-confirm-icon svg {
+  width: 1.75rem;
+  height: 1.75rem;
+}
 
 .modal-confirm-title {
   margin: 0;
@@ -227,7 +266,247 @@
 }
 
 /* ==========================================================================
-   6. RESPONSIVE
+   6. CONTENT HELPERS
+   ==========================================================================
+   Small building blocks used inside specific modal bodies (dropzones,
+   invoice summaries, payment method cards, document previews, selected
+   file chips) so individual modals in components/modal.html don't need
+   one-off inline styles. */
+
+/* --- Drag & drop upload zone (bigger, friendlier than the plain
+   `.form-file` control in forms.css — used by Upload Documents, Evidence,
+   and other file-heavy modals). --- */
+.modal-dropzone {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+  background-color: var(--color-bg-muted);
+  border: 1.5px dashed var(--color-border-dark);
+  border-radius: var(--radius-lg);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.modal-dropzone:hover,
+.modal-dropzone.is-dragover {
+  background-color: var(--color-secondary-50);
+  border-color: var(--color-secondary);
+}
+
+.modal-dropzone input[type='file'] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.modal-dropzone-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  color: var(--color-secondary);
+}
+
+.modal-dropzone-label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+}
+
+.modal-dropzone-hint {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+/* --- Selected file chips (shown below a dropzone/file input once files
+   are chosen) --- */
+.modal-file-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.modal-file-chip {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background-color: var(--color-bg-muted);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.modal-file-chip svg {
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
+  color: var(--color-secondary);
+}
+
+.modal-file-chip-name {
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.modal-file-chip-remove {
+  flex-shrink: 0;
+  display: inline-flex;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.modal-file-chip-remove:hover {
+  color: var(--color-error);
+}
+
+/* --- Invoice / order summary card (Payment modal) --- */
+.modal-summary-card {
+  padding: var(--space-4) var(--space-5);
+  margin-bottom: var(--space-5);
+  background-color: var(--color-bg-muted);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+}
+
+.modal-summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-block: var(--space-2);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.modal-summary-row + .modal-summary-row {
+  border-top: 1px dashed var(--color-border);
+}
+
+.modal-summary-row.modal-summary-total {
+  margin-top: var(--space-1);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border-dark);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+}
+
+/* --- Payment method selector (radio "cards") --- */
+.modal-payment-methods {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+.modal-payment-method {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--color-bg-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.modal-payment-method:hover {
+  border-color: var(--color-primary-light);
+}
+
+.modal-payment-method input {
+  position: absolute;
+  opacity: 0;
+}
+
+.modal-payment-method svg {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--color-primary);
+}
+
+.modal-payment-method span {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.modal-payment-method:has(input:checked) {
+  border-color: var(--color-secondary);
+  background-color: var(--color-secondary-50);
+  box-shadow: 0 0 0 1px var(--color-secondary);
+}
+
+/* --- Document preview (View Document modal) --- */
+.modal-doc-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-10) var(--space-4);
+  margin-bottom: var(--space-5);
+  background-color: var(--color-bg-muted);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  text-align: center;
+}
+
+.modal-doc-preview-icon {
+  width: 3.5rem;
+  height: 3.5rem;
+  color: var(--color-primary-light);
+}
+
+.modal-doc-preview-name {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+}
+
+.modal-doc-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2) var(--space-4);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+/* --- Compact icon-button row (e.g. Download / Print / Share) --- */
+.modal-icon-actions {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+/* --- Notification-style meta line (timestamp, sender) --- */
+.modal-meta-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-top: calc(var(--space-2) * -1);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+/* ==========================================================================
+   7. RESPONSIVE
    ========================================================================== */
 
 @media (max-width: 576px) {

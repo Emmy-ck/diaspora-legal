@@ -1,0 +1,824 @@
+<!--
+  DLSS Modal Library — shared, reusable pop-up components.
+
+  Usage: include this fragment once per page (e.g.
+  `<div data-include="modal"></div>` right before the closing `</body>`, or
+  paste `#modalRoot` directly) and `initModals()` (js/app.js) wires up every
+  modal inside it via event delegation — no per-modal JS required. Requires
+  css/modal.css, css/forms.css and css/buttons.css.
+
+  OPENING / CLOSING (no JS needed for simple cases)
+  --------------------------------------------------
+    <button data-modal-open="loginModal">Log In</button>
+
+    <div class="modal-backdrop" id="loginModal" data-modal>
+      ...
+      <button data-modal-close>Cancel</button>   (closes the nearest modal)
+    </div>
+
+  Any element anywhere on the page can open a modal with `data-modal-open`;
+  any element *inside* a modal can close it with `data-modal-close`.
+  Clicking the dark backdrop itself also closes the modal, unless it opts
+  out with `data-close-on-backdrop="false"` (used here for the Payment
+  modal, where an accidental outside click shouldn't drop a payment in
+  progress). Escape always closes the topmost open modal. Focus is trapped
+  inside the modal while open and restored to the trigger on close.
+
+  FORMS INSIDE MODALS
+  --------------------------------------------------
+  Give a `<form>` the `data-modal-form` attribute and initModals() will:
+    - run lightweight required/email validation (adds `.is-invalid` +
+      shows the field's `.invalid-feedback`, matching css/forms.css),
+    - put the submit button into its `.is-loading` state (css/buttons.css)
+      and block duplicate submits while "processing" (simulated — swap
+      for a real fetch() once api.js exists),
+    - then close the form's modal and, if present, open the modal named
+      in `data-modal-success` (or `data-modal-error`), filling in that
+      modal's title/text from `data-success-title`/`data-success-text`.
+
+  STATUS MODALS (Confirmation / Success / Error / Notification)
+  --------------------------------------------------
+  These four are single, generic, reusable instances (rather than one
+  per action) — populate and open them from JS via:
+
+    DLSS.Modal.confirm({ title, text, confirmLabel, danger, onConfirm })
+    DLSS.Modal.success({ title, text })
+    DLSS.Modal.error({ title, text })
+    DLSS.Modal.notify({ title, text, meta, viewHref })
+
+  See js/app.js for the full API (open/close/closeAll are also exposed).
+-->
+<div id="modalRoot" data-component="modal">
+
+  <!-- ============================================================
+       1. LOGIN MODAL
+       ============================================================ -->
+  <div class="modal-backdrop" id="loginModal" data-modal>
+    <div class="modal modal-md" role="dialog" aria-modal="true" aria-labelledby="loginModalTitle" tabindex="-1">
+      <div class="modal-header">
+        <div>
+          <h2 class="modal-title" id="loginModalTitle">Log In</h2>
+          <p class="modal-subtitle">Access your DLSS legal workspace</p>
+        </div>
+        <button type="button" class="modal-close" data-modal-close aria-label="Close">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="loginForm" data-modal-form data-modal-success="successModal" data-success-title="Welcome back!" data-success-text="You have been logged in successfully.">
+          <div class="form-group">
+            <label class="form-label" for="loginIdentifier">Email or Phone <span class="required">*</span></label>
+            <input type="text" class="form-control" id="loginIdentifier" name="identifier" placeholder="you@example.com" required>
+            <div class="invalid-feedback">Please enter your email or phone number.</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="loginPassword">Password <span class="required">*</span></label>
+            <input type="password" class="form-control" id="loginPassword" name="password" placeholder="••••••••" required minlength="6">
+            <div class="invalid-feedback">Password must be at least 6 characters.</div>
+          </div>
+          <div class="form-group modal-form-row">
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="loginRemember" name="remember">
+              <label class="form-check-label" for="loginRemember">Remember me</label>
+            </div>
+            <a href="#" class="modal-link" data-modal-open="forgotPasswordModal">Forgot password?</a>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" form="loginForm" class="btn btn-primary">Log In</button>
+        <button type="button" class="btn btn-outline" data-modal-close>Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       2. REGISTRATION MODAL
+       ============================================================ -->
+  <div class="modal-backdrop" id="registerModal" data-modal>
+    <div class="modal modal-md" role="dialog" aria-modal="true" aria-labelledby="registerModalTitle" tabindex="-1">
+      <div class="modal-header">
+        <div>
+          <h2 class="modal-title" id="registerModalTitle">Create Account</h2>
+          <p class="modal-subtitle">Join DLSS to start your legal matter</p>
+        </div>
+        <button type="button" class="modal-close" data-modal-close aria-label="Close">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="registerForm" data-modal-form data-modal-success="successModal" data-success-title="Account Created" data-success-text="Welcome to DLSS — check your email to verify your account.">
+          <div class="form-group">
+            <label class="form-label" for="registerName">Full Name <span class="required">*</span></label>
+            <input type="text" class="form-control" id="registerName" name="fullName" placeholder="Jane Doe" required>
+            <div class="invalid-feedback">Please enter your full name.</div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="registerEmail">Email <span class="required">*</span></label>
+              <input type="email" class="form-control" id="registerEmail" name="email" placeholder="you@example.com" required>
+              <div class="invalid-feedback">Please enter a valid email address.</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="registerPhone">Phone Number <span class="required">*</span></label>
+              <input type="tel" class="form-control" id="registerPhone" name="phone" placeholder="+1 555 000 0000" required>
+              <div class="invalid-feedback">Please enter your phone number.</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="registerCountry">Country of Residence <span class="required">*</span></label>
+            <select class="form-select" id="registerCountry" name="country" required>
+              <option value="">Select country&hellip;</option>
+              <option value="US">United States</option>
+              <option value="GB">United Kingdom</option>
+              <option value="CA">Canada</option>
+              <option value="AU">Australia</option>
+              <option value="AE">United Arab Emirates</option>
+              <option value="DE">Germany</option>
+              <option value="ZA">South Africa</option>
+              <option value="KE">Kenya</option>
+              <option value="OTHER">Other</option>
+            </select>
+            <div class="invalid-feedback">Please select your country of residence.</div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="registerPassword">Password <span class="required">*</span></label>
+              <input type="password" class="form-control" id="registerPassword" name="password" placeholder="••••••••" required minlength="8">
+              <div class="invalid-feedback">Password must be at least 8 characters.</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="registerPasswordConfirm">Confirm Password <span class="required">*</span></label>
+              <input type="password" class="form-control" id="registerPasswordConfirm" name="passwordConfirm" placeholder="••••••••" required data-match="registerPassword">
+              <div class="invalid-feedback">Passwords do not match.</div>
+            </div>
+          </div>
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="registerTerms" name="terms" required>
+            <label class="form-check-label" for="registerTerms">I agree to the <a href="/pages/website/terms.html">Terms &amp; Conditions</a> and <a href="/pages/website/privacy.html">Privacy Policy</a>.</label>
+            <div class="invalid-feedback">You must accept the terms to continue.</div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" form="registerForm" class="btn btn-primary">Create Account</button>
+        <button type="button" class="btn btn-outline" data-modal-close>Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       2b. FORGOT PASSWORD MODAL (supporting modal for the Login flow)
+       ============================================================ -->
+  <div class="modal-backdrop" id="forgotPasswordModal" data-modal>
+    <div class="modal modal-sm" role="dialog" aria-modal="true" aria-labelledby="forgotPasswordModalTitle" tabindex="-1">
+      <div class="modal-header">
+        <div>
+          <h2 class="modal-title" id="forgotPasswordModalTitle">Reset Password</h2>
+          <p class="modal-subtitle">We'll email you a reset link</p>
+        </div>
+        <button type="button" class="modal-close" data-modal-close aria-label="Close">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="forgotPasswordForm" data-modal-form data-modal-success="successModal" data-success-title="Check Your Email" data-success-text="If an account matches that email, a reset link is on its way.">
+          <div class="form-group">
+            <label class="form-label" for="forgotPasswordEmail">Email <span class="required">*</span></label>
+            <input type="email" class="form-control" id="forgotPasswordEmail" name="email" placeholder="you@example.com" required>
+            <div class="invalid-feedback">Please enter a valid email address.</div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" form="forgotPasswordForm" class="btn btn-primary">Send Reset Link</button>
+        <button type="button" class="btn btn-outline" data-modal-close>Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       3. BOOK CONSULTATION
+       ============================================================ -->
+  <div class="modal-backdrop" id="bookConsultationModal" data-modal>
+    <div class="modal modal-md" role="dialog" aria-modal="true" aria-labelledby="bookConsultationModalTitle" tabindex="-1">
+      <div class="modal-header">
+        <div>
+          <h2 class="modal-title" id="bookConsultationModalTitle">Book Consultation</h2>
+          <p class="modal-subtitle">Schedule time with a DLSS advocate</p>
+        </div>
+        <button type="button" class="modal-close" data-modal-close aria-label="Close">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="bookConsultationForm" data-modal-form data-modal-success="successModal" data-success-title="Consultation Booked" data-success-text="We've sent you a confirmation with the meeting details.">
+          <div class="form-group">
+            <label class="form-label" for="consultationType">Consultation Type <span class="required">*</span></label>
+            <select class="form-select" id="consultationType" name="consultationType" required>
+              <option value="">Select type&hellip;</option>
+              <option value="video">Video Meeting</option>
+              <option value="phone">Phone Consultation</option>
+              <option value="physical">Physical Appointment</option>
+            </select>
+            <div class="invalid-feedback">Please select a consultation type.</div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="consultationDate">Preferred Date &amp; Time <span class="required">*</span></label>
+              <input type="datetime-local" class="form-control" id="consultationDate" name="dateTime" required>
+              <div class="invalid-feedback">Please choose a preferred date and time.</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="consultationTimezone">Time Zone <span class="required">*</span></label>
+              <select class="form-select" id="consultationTimezone" name="timezone" required>
+                <option value="">Select time zone&hellip;</option>
+                <option value="EAT">EAT — East Africa Time (UTC+3)</option>
+                <option value="GMT">GMT — Greenwich Mean Time</option>
+                <option value="CET">CET — Central European Time</option>
+                <option value="EST">EST — US Eastern Time</option>
+                <option value="PST">PST — US Pacific Time</option>
+                <option value="GST">GST — Gulf Standard Time</option>
+              </select>
+              <div class="invalid-feedback">Please select your time zone.</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="consultationMatter">Legal Matter <span class="required">*</span></label>
+            <select class="form-select" id="consultationMatter" name="legalMatter" required>
+              <option value="">Select practice area&hellip;</option>
+              <option value="family">Family Law</option>
+              <option value="property">Property Law</option>
+              <option value="employment">Employment Law</option>
+              <option value="business">Business Law</option>
+              <option value="immigration">Immigration Issues</option>
+              <option value="land">Land Disputes</option>
+              <option value="succession">Succession</option>
+              <option value="other">Other</option>
+            </select>
+            <div class="invalid-feedback">Please select a legal matter.</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="consultationDescription">Description</label>
+            <textarea class="form-control" id="consultationDescription" name="description" placeholder="Briefly describe what you'd like to discuss&hellip;"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Attach Documents</label>
+            <label class="modal-dropzone">
+              <input type="file" name="attachments" multiple>
+              <svg class="modal-dropzone-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13V4M6.5 7.5 10 4l3.5 3.5"/><path d="M3 13v2.5A1.5 1.5 0 0 0 4.5 17h11a1.5 1.5 0 0 0 1.5-1.5V13"/></svg>
+              <span class="modal-dropzone-label">Drag &amp; drop files or click to browse</span>
+              <span class="modal-dropzone-hint">PDF, JPG or PNG — up to 10MB each</span>
+            </label>
+            <div class="modal-file-list" data-file-list></div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" form="bookConsultationForm" class="btn btn-primary">Submit Request</button>
+        <button type="button" class="btn btn-outline" data-modal-close>Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       4. NEW LEGAL MATTER
+       ============================================================ -->
+  <div class="modal-backdrop" id="newMatterModal" data-modal>
+    <div class="modal modal-md" role="dialog" aria-modal="true" aria-labelledby="newMatterModalTitle" tabindex="-1">
+      <div class="modal-header">
+        <div>
+          <h2 class="modal-title" id="newMatterModalTitle">New Legal Matter</h2>
+          <p class="modal-subtitle">Open a new matter in your legal portfolio</p>
+        </div>
+        <button type="button" class="modal-close" data-modal-close aria-label="Close">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="newMatterForm" data-modal-form data-modal-success="successModal" data-success-title="Matter Created" data-success-text="Your new legal matter has been added to your portfolio.">
+          <div class="form-group">
+            <label class="form-label" for="matterTitle">Matter Title <span class="required">*</span></label>
+            <input type="text" class="form-control" id="matterTitle" name="title" placeholder="e.g. Property Purchase — Karen, Nairobi" required>
+            <div class="invalid-feedback">Please enter a title for this matter.</div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="matterPracticeArea">Practice Area <span class="required">*</span></label>
+              <select class="form-select" id="matterPracticeArea" name="practiceArea" required>
+                <option value="">Select practice area&hellip;</option>
+                <option value="family">Family Law</option>
+                <option value="property">Property Law</option>
+                <option value="employment">Employment Law</option>
+                <option value="business">Business Law</option>
+                <option value="immigration">Immigration Issues</option>
+                <option value="land">Land Disputes</option>
+                <option value="succession">Succession</option>
+              </select>
+              <div class="invalid-feedback">Please select a practice area.</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="matterPriority">Priority <span class="required">*</span></label>
+              <select class="form-select" id="matterPriority" name="priority" required>
+                <option value="">Select priority&hellip;</option>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+                <option value="urgent">Urgent</option>
+              </select>
+              <div class="invalid-feedback">Please select a priority level.</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="matterDescription">Description <span class="required">*</span></label>
+            <textarea class="form-control" id="matterDescription" name="description" placeholder="Describe the matter&hellip;" required></textarea>
+            <div class="invalid-feedback">Please add a short description.</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Attach Supporting Documents</label>
+            <label class="modal-dropzone">
+              <input type="file" name="attachments" multiple>
+              <svg class="modal-dropzone-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13V4M6.5 7.5 10 4l3.5 3.5"/><path d="M3 13v2.5A1.5 1.5 0 0 0 4.5 17h11a1.5 1.5 0 0 0 1.5-1.5V13"/></svg>
+              <span class="modal-dropzone-label">Drag &amp; drop files or click to browse</span>
+              <span class="modal-dropzone-hint">PDF, JPG or PNG — up to 10MB each</span>
+            </label>
+            <div class="modal-file-list" data-file-list></div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" form="newMatterForm" class="btn btn-primary">Create Matter</button>
+        <button type="button" class="btn btn-outline" data-modal-close>Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       5. NEW CLAIM
+       ============================================================ -->
+  <div class="modal-backdrop" id="newClaimModal" data-modal>
+    <div class="modal modal-md" role="dialog" aria-modal="true" aria-labelledby="newClaimModalTitle" tabindex="-1">
+      <div class="modal-header">
+        <div>
+          <h2 class="modal-title" id="newClaimModalTitle">New Claim</h2>
+          <p class="modal-subtitle">Submit a new claim for review</p>
+        </div>
+        <button type="button" class="modal-close" data-modal-close aria-label="Close">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="newClaimForm" data-modal-form data-modal-success="successModal" data-success-title="Claim Submitted" data-success-text="Your claim has been submitted and assigned a reference number.">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="claimType">Claim Type <span class="required">*</span></label>
+              <select class="form-select" id="claimType" name="claimType" required>
+                <option value="">Select claim type&hellip;</option>
+                <option value="insurance">Insurance Claim</option>
+                <option value="compensation">Compensation Claim</option>
+                <option value="employment">Employment Claim</option>
+                <option value="property">Property Claim</option>
+                <option value="consumer">Consumer Claim</option>
+                <option value="debt">Debt Claim</option>
+              </select>
+              <div class="invalid-feedback">Please select a claim type.</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="claimAmount">Claim Amount <span class="form-label-hint">(optional)</span></label>
+              <div class="input-group">
+                <span class="input-group-text">KES</span>
+                <input type="number" class="form-control" id="claimAmount" name="amount" placeholder="0.00" min="0" step="0.01">
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="claimSubject">Subject <span class="required">*</span></label>
+            <input type="text" class="form-control" id="claimSubject" name="subject" placeholder="Short summary of the claim" required>
+            <div class="invalid-feedback">Please enter a subject for this claim.</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="claimDescription">Description <span class="required">*</span></label>
+            <textarea class="form-control" id="claimDescription" name="description" placeholder="Describe the claim in detail&hellip;" required></textarea>
+            <div class="invalid-feedback">Please describe the claim.</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Upload Evidence</label>
+            <label class="modal-dropzone">
+              <input type="file" name="evidence" multiple>
+              <svg class="modal-dropzone-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13V4M6.5 7.5 10 4l3.5 3.5"/><path d="M3 13v2.5A1.5 1.5 0 0 0 4.5 17h11a1.5 1.5 0 0 0 1.5-1.5V13"/></svg>
+              <span class="modal-dropzone-label">Drag &amp; drop evidence or click to browse</span>
+              <span class="modal-dropzone-hint">Photos, PDFs or videos — up to 25MB each</span>
+            </label>
+            <div class="modal-file-list" data-file-list></div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" form="newClaimForm" class="btn btn-primary">Submit Claim</button>
+        <button type="button" class="btn btn-outline" data-modal-close>Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       6. UPLOAD DOCUMENTS
+       ============================================================ -->
+  <div class="modal-backdrop" id="uploadDocumentsModal" data-modal>
+    <div class="modal modal-md" role="dialog" aria-modal="true" aria-labelledby="uploadDocumentsModalTitle" tabindex="-1">
+      <div class="modal-header">
+        <div>
+          <h2 class="modal-title" id="uploadDocumentsModalTitle">Upload Documents</h2>
+          <p class="modal-subtitle">Add files to your secure document vault</p>
+        </div>
+        <button type="button" class="modal-close" data-modal-close aria-label="Close">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="uploadDocumentsForm" data-modal-form data-modal-success="successModal" data-success-title="Document Uploaded" data-success-text="Your file has been added to your document vault.">
+          <div class="form-group">
+            <label class="form-label" for="uploadCategory">Select Category <span class="required">*</span></label>
+            <select class="form-select" id="uploadCategory" name="category" required>
+              <option value="">Select category&hellip;</option>
+              <option value="contracts">Contracts</option>
+              <option value="ids">IDs</option>
+              <option value="passports">Passports</option>
+              <option value="court">Court Documents</option>
+              <option value="certificates">Certificates</option>
+              <option value="agreements">Agreements</option>
+              <option value="letters">Letters</option>
+            </select>
+            <div class="invalid-feedback">Please select a document category.</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Drag &amp; Drop / Browse Files <span class="required">*</span></label>
+            <label class="modal-dropzone">
+              <input type="file" name="documents" multiple required>
+              <svg class="modal-dropzone-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13V4M6.5 7.5 10 4l3.5 3.5"/><path d="M3 13v2.5A1.5 1.5 0 0 0 4.5 17h11a1.5 1.5 0 0 0 1.5-1.5V13"/></svg>
+              <span class="modal-dropzone-label">Drag &amp; drop files or click to browse</span>
+              <span class="modal-dropzone-hint">PDF, JPG or PNG — up to 10MB each</span>
+            </label>
+            <div class="modal-file-list" data-file-list></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="uploadDescription">Document Description</label>
+            <textarea class="form-control" id="uploadDescription" name="description" placeholder="Optional note about this document&hellip;"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" form="uploadDocumentsForm" class="btn btn-primary">Upload</button>
+        <button type="button" class="btn btn-outline" data-modal-close>Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       7. VIEW DOCUMENT
+       ============================================================ -->
+  <div class="modal-backdrop" id="viewDocumentModal" data-modal>
+    <div class="modal modal-lg" role="dialog" aria-modal="true" aria-labelledby="viewDocumentModalTitle" tabindex="-1">
+      <div class="modal-header">
+        <div>
+          <h2 class="modal-title" id="viewDocumentModalTitle">View Document</h2>
+          <p class="modal-subtitle" data-doc-category>Contracts</p>
+        </div>
+        <button type="button" class="modal-close" data-modal-close aria-label="Close">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-doc-preview">
+          <svg class="modal-doc-preview-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2.5h5.5L16 7v9.5a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-13a1 1 0 0 1 1-1Z"/><path d="M11.3 2.5V7H16M7 11h6M7 14h6"/></svg>
+          <span class="modal-doc-preview-name" data-doc-name>Retainer_Agreement_2026.pdf</span>
+          <div class="modal-doc-meta">
+            <span data-doc-size>2.4 MB</span>
+            <span>&bull;</span>
+            <span data-doc-date>Uploaded 12 Jun 2026</span>
+            <span>&bull;</span>
+            <span data-doc-uploader>Jane Doe</span>
+          </div>
+        </div>
+        <div class="modal-icon-actions">
+          <button type="button" class="btn btn-outline btn-sm">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3v9.5M6.5 9l3.5 3.5L13.5 9"/><path d="M3.5 15.5h13"/></svg>
+            Download
+          </button>
+          <button type="button" class="btn btn-outline btn-sm">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 7V3.5h9V7"/><rect x="3" y="7" width="14" height="6.5" rx="1"/><path d="M5.5 13v3.5h9V13"/></svg>
+            Print
+          </button>
+          <button type="button" class="btn btn-outline btn-sm">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="15.5" cy="4.5" r="2"/><circle cx="4.5" cy="10" r="2"/><circle cx="15.5" cy="15.5" r="2"/><path d="M6.3 9l7.4-3.6M6.3 11l7.4 3.6"/></svg>
+            Share
+          </button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" data-modal-close>Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       8. PAYMENT MODAL (critical action — does not close on backdrop click)
+       ============================================================ -->
+  <div class="modal-backdrop" id="paymentModal" data-modal data-close-on-backdrop="false">
+    <div class="modal modal-md" role="dialog" aria-modal="true" aria-labelledby="paymentModalTitle" tabindex="-1">
+      <div class="modal-header">
+        <div>
+          <h2 class="modal-title" id="paymentModalTitle">Make Payment</h2>
+          <p class="modal-subtitle">Secure payment processing</p>
+        </div>
+        <button type="button" class="modal-close" data-modal-close aria-label="Close">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="paymentForm" data-modal-form data-modal-success="successModal" data-success-title="Payment Successful" data-success-text="Your receipt has been emailed to you." data-modal-error="errorModal" data-error-title="Payment Failed" data-error-text="We couldn't process your payment. Please check your details and try again.">
+          <div class="modal-summary-card">
+            <div class="modal-summary-row">
+              <span>Invoice</span>
+              <span data-invoice-number>INV-2026-0143</span>
+            </div>
+            <div class="modal-summary-row">
+              <span>Description</span>
+              <span data-invoice-description>Legal Advisory — Family Law</span>
+            </div>
+            <div class="modal-summary-row modal-summary-total">
+              <span>Amount Due</span>
+              <span data-invoice-amount>KES 25,000.00</span>
+            </div>
+          </div>
+
+          <label class="form-label">Payment Method <span class="required">*</span></label>
+          <div class="modal-payment-methods">
+            <label class="modal-payment-method">
+              <input type="radio" name="paymentMethod" value="mpesa" checked>
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 3h3l1.5 4L6.8 8.5a11 11 0 0 0 4.7 4.7L13 11.5l4 1.5v3a1.5 1.5 0 0 1-1.6 1.5C8.6 17 3 11.4 2.5 4.6A1.5 1.5 0 0 1 4 3Z"/></svg>
+              <span>M-Pesa</span>
+            </label>
+            <label class="modal-payment-method">
+              <input type="radio" name="paymentMethod" value="card">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4.5" width="16" height="11" rx="2"/><path d="M2 8h16M5 12.3h3"/></svg>
+              <span>Card</span>
+            </label>
+            <label class="modal-payment-method">
+              <input type="radio" name="paymentMethod" value="bank">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 2 2.5 6.5h15L10 2Z"/><path d="M3 8v7M7.3 8v7M12.7 8v7M17 8v7M2.5 17h15"/></svg>
+              <span>Bank Transfer</span>
+            </label>
+            <label class="modal-payment-method">
+              <input type="radio" name="paymentMethod" value="paypal">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5.5" width="15" height="10" rx="2"/><path d="M2.5 9h15M12.5 12.5h2.5"/></svg>
+              <span>PayPal</span>
+            </label>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" form="paymentForm" class="btn btn-primary">Pay Now</button>
+        <button type="button" class="btn btn-outline" data-modal-close>Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       9. DUE DILIGENCE REQUEST
+       ============================================================ -->
+  <div class="modal-backdrop" id="dueDiligenceModal" data-modal>
+    <div class="modal modal-md" role="dialog" aria-modal="true" aria-labelledby="dueDiligenceModalTitle" tabindex="-1">
+      <div class="modal-header">
+        <div>
+          <h2 class="modal-title" id="dueDiligenceModalTitle">Due Diligence Request</h2>
+          <p class="modal-subtitle">Request a verification search</p>
+        </div>
+        <button type="button" class="modal-close" data-modal-close aria-label="Close">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="dueDiligenceForm" data-modal-form data-modal-success="successModal" data-success-title="Request Submitted" data-success-text="Our team will begin your due diligence search shortly.">
+          <div class="form-group">
+            <label class="form-label" for="dueDiligenceType">Type of Search <span class="required">*</span></label>
+            <select class="form-select" id="dueDiligenceType" name="searchType" required>
+              <option value="">Select search type&hellip;</option>
+              <option value="land">Land Search</option>
+              <option value="company">Company Search</option>
+              <option value="court">Court Search</option>
+              <option value="registry">Registry Verification</option>
+              <option value="inspection">Property Inspection</option>
+            </select>
+            <div class="invalid-feedback">Please select a type of search.</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="dueDiligenceDetails">Property / Company Details <span class="required">*</span></label>
+            <textarea class="form-control" id="dueDiligenceDetails" name="details" placeholder="e.g. LR No. 209/1234, or company name and registration number" required></textarea>
+            <div class="invalid-feedback">Please provide the property or company details.</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="dueDiligenceInstructions">Additional Instructions</label>
+            <textarea class="form-control" id="dueDiligenceInstructions" name="instructions" placeholder="Anything else our team should know&hellip;"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" form="dueDiligenceForm" class="btn btn-primary">Submit Request</button>
+        <button type="button" class="btn btn-outline" data-modal-close>Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       10. REGISTRATION SERVICE REQUEST
+       ============================================================ -->
+  <div class="modal-backdrop" id="registrationServiceModal" data-modal>
+    <div class="modal modal-md" role="dialog" aria-modal="true" aria-labelledby="registrationServiceModalTitle" tabindex="-1">
+      <div class="modal-header">
+        <div>
+          <h2 class="modal-title" id="registrationServiceModalTitle">Registration Service Request</h2>
+          <p class="modal-subtitle">Apply for a business or entity registration</p>
+        </div>
+        <button type="button" class="modal-close" data-modal-close aria-label="Close">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="registrationServiceForm" data-modal-form data-modal-success="successModal" data-success-title="Application Submitted" data-success-text="Your registration application has been received.">
+          <div class="form-group">
+            <label class="form-label" for="registrationServiceType">Registration Type <span class="required">*</span></label>
+            <select class="form-select" id="registrationServiceType" name="registrationType" required>
+              <option value="">Select registration type&hellip;</option>
+              <option value="company">Company Registration</option>
+              <option value="ngo">NGO Registration</option>
+              <option value="trademark">Trademark Registration</option>
+              <option value="business-name">Business Name</option>
+              <option value="annual-returns">Annual Returns</option>
+            </select>
+            <div class="invalid-feedback">Please select a registration type.</div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="registrationServiceApplicant">Applicant Full Name <span class="required">*</span></label>
+              <input type="text" class="form-control" id="registrationServiceApplicant" name="applicantName" placeholder="Jane Doe" required>
+              <div class="invalid-feedback">Please enter the applicant's full name.</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="registrationServiceIdNumber">ID / Passport Number <span class="required">*</span></label>
+              <input type="text" class="form-control" id="registrationServiceIdNumber" name="idNumber" placeholder="e.g. A1234567" required>
+              <div class="invalid-feedback">Please enter an ID or passport number.</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Required Documents <span class="required">*</span></label>
+            <label class="modal-dropzone">
+              <input type="file" name="documents" multiple required>
+              <svg class="modal-dropzone-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13V4M6.5 7.5 10 4l3.5 3.5"/><path d="M3 13v2.5A1.5 1.5 0 0 0 4.5 17h11a1.5 1.5 0 0 0 1.5-1.5V13"/></svg>
+              <span class="modal-dropzone-label">Drag &amp; drop files or click to browse</span>
+              <span class="modal-dropzone-hint">ID copy, passport photo, KRA PIN, etc.</span>
+            </label>
+            <div class="modal-file-list" data-file-list></div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" form="registrationServiceForm" class="btn btn-primary">Submit Application</button>
+        <button type="button" class="btn btn-outline" data-modal-close>Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       11. CONTACT ADVOCATE
+       ============================================================ -->
+  <div class="modal-backdrop" id="contactAdvocateModal" data-modal>
+    <div class="modal modal-md" role="dialog" aria-modal="true" aria-labelledby="contactAdvocateModalTitle" tabindex="-1">
+      <div class="modal-header">
+        <div>
+          <h2 class="modal-title" id="contactAdvocateModalTitle">Contact Advocate</h2>
+          <p class="modal-subtitle">Send a secure message to your legal team</p>
+        </div>
+        <button type="button" class="modal-close" data-modal-close aria-label="Close">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="contactAdvocateForm" data-modal-form data-modal-success="successModal" data-success-title="Message Sent" data-success-text="Your advocate will respond shortly.">
+          <div class="form-group">
+            <label class="form-label" for="contactAdvocateSelect">Select Advocate <span class="required">*</span></label>
+            <select class="form-select" id="contactAdvocateSelect" name="advocate" required>
+              <option value="">Select advocate&hellip;</option>
+              <option value="amina-yusuf">Amina Yusuf — Family &amp; Property Law</option>
+              <option value="david-kimani">David Kimani — Business &amp; Registrations</option>
+              <option value="grace-wanjiru">Grace Wanjiru — Immigration &amp; Succession</option>
+            </select>
+            <div class="invalid-feedback">Please select an advocate.</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="contactAdvocateSubject">Subject <span class="required">*</span></label>
+            <input type="text" class="form-control" id="contactAdvocateSubject" name="subject" placeholder="What is this regarding?" required>
+            <div class="invalid-feedback">Please enter a subject.</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="contactAdvocateMessage">Message <span class="required">*</span></label>
+            <textarea class="form-control" id="contactAdvocateMessage" name="message" placeholder="Type your message&hellip;" required></textarea>
+            <div class="invalid-feedback">Please enter a message.</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Attach Files</label>
+            <label class="modal-dropzone">
+              <input type="file" name="attachments" multiple>
+              <svg class="modal-dropzone-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13V4M6.5 7.5 10 4l3.5 3.5"/><path d="M3 13v2.5A1.5 1.5 0 0 0 4.5 17h11a1.5 1.5 0 0 0 1.5-1.5V13"/></svg>
+              <span class="modal-dropzone-label">Drag &amp; drop files or click to browse</span>
+              <span class="modal-dropzone-hint">PDF, JPG or PNG — up to 10MB each</span>
+            </label>
+            <div class="modal-file-list" data-file-list></div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" form="contactAdvocateForm" class="btn btn-primary">Send</button>
+        <button type="button" class="btn btn-outline" data-modal-close>Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       12. CONFIRMATION MODAL (generic — populated via DLSS.Modal.confirm())
+       Reused for: Delete Document, Cancel Consultation, Close Case,
+       Withdraw Claim, Logout, etc.
+       ============================================================ -->
+  <div class="modal-backdrop" id="confirmModal" data-modal>
+    <div class="modal modal-sm modal-confirm" role="alertdialog" aria-modal="true" aria-labelledby="confirmModalTitle" tabindex="-1">
+      <div class="modal-body">
+        <div class="modal-confirm-icon icon-warning" id="confirmModalIcon">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3 18 16H2L10 3Z"/><path d="M10 8.3v3.7M10 14.6h.01"/></svg>
+        </div>
+        <h2 class="modal-confirm-title" id="confirmModalTitle">Are you sure?</h2>
+        <p class="modal-confirm-text" id="confirmModalText">This action cannot be undone.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" id="confirmModalConfirmBtn">Confirm</button>
+        <button type="button" class="btn btn-outline" data-modal-close>Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       13. SUCCESS MODAL (generic — populated via DLSS.Modal.success())
+       ============================================================ -->
+  <div class="modal-backdrop" id="successModal" data-modal>
+    <div class="modal modal-sm modal-confirm" role="alertdialog" aria-modal="true" aria-labelledby="successModalTitle" tabindex="-1">
+      <div class="modal-body">
+        <div class="modal-confirm-icon icon-success">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="8"/><path d="M6.3 10.2l2.5 2.5 4.7-5.2"/></svg>
+        </div>
+        <h2 class="modal-confirm-title" id="successModalTitle">Success!</h2>
+        <p class="modal-confirm-text" id="successModalText">Your action was completed successfully.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-modal-close id="successModalPrimaryBtn">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       14. ERROR MODAL (generic — populated via DLSS.Modal.error())
+       ============================================================ -->
+  <div class="modal-backdrop" id="errorModal" data-modal>
+    <div class="modal modal-sm modal-confirm" role="alertdialog" aria-modal="true" aria-labelledby="errorModalTitle" tabindex="-1">
+      <div class="modal-body">
+        <div class="modal-confirm-icon icon-error">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="8"/><path d="M7.3 7.3l5.4 5.4M12.7 7.3l-5.4 5.4"/></svg>
+        </div>
+        <h2 class="modal-confirm-title" id="errorModalTitle">Something Went Wrong</h2>
+        <p class="modal-confirm-text" id="errorModalText">Please try again, or contact support if the problem continues.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-danger" data-modal-close id="errorModalPrimaryBtn">Try Again</button>
+        <button type="button" class="btn btn-outline" data-modal-close>Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       15. NOTIFICATION MODAL (generic — populated via DLSS.Modal.notify())
+       ============================================================ -->
+  <div class="modal-backdrop" id="notificationModal" data-modal>
+    <div class="modal modal-sm modal-confirm" role="dialog" aria-modal="true" aria-labelledby="notificationModalTitle" tabindex="-1">
+      <div class="modal-body">
+        <div class="modal-confirm-icon icon-info">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 2.7a4 4 0 0 0-4 4v2.3c0 1-.4 2-1.2 2.7L4 12.6h12l-.8-.9c-.8-.7-1.2-1.7-1.2-2.7V6.7a4 4 0 0 0-4-4Z"/><path d="M8 15.3a2 2 0 0 0 4 0"/></svg>
+        </div>
+        <h2 class="modal-confirm-title" id="notificationModalTitle">New Update</h2>
+        <p class="modal-confirm-text" id="notificationModalText">You have a new update on your account.</p>
+        <p class="modal-meta-line" id="notificationModalMeta">Just now</p>
+      </div>
+      <div class="modal-footer">
+        <a href="#" class="btn btn-primary" id="notificationModalPrimaryBtn">View Details</a>
+        <button type="button" class="btn btn-outline" data-modal-close>Dismiss</button>
+      </div>
+    </div>
+  </div>
+
+</div>

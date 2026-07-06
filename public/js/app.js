@@ -489,14 +489,372 @@ window.DLSS = window.DLSS || {};
   });
 
   /* ==========================================================================
+     MODAL LIBRARY
+     ==========================================================================
+     Generic open/close/focus-trap engine for every modal in
+     components/modal.html (Login, Registration, Book Consultation, New
+     Legal Matter, New Claim, Upload Documents, View Document, Payment,
+     Due Diligence Request, Registration Service Request, Contact Advocate,
+     plus the four reusable status modals: Confirmation/Success/Error/
+     Notification). Works via event delegation on `document`, so it
+     doesn't matter whether the modal markup was already in the page or
+     injected later via `loadIncludes()`.
+
+     Markup contract (see components/modal.html header comment for the
+     full usage guide):
+       [data-modal-open="someModalId"]      -> opens #someModalId
+       [data-modal-close]                   -> closes its nearest modal
+       .modal-backdrop[data-close-on-backdrop="false"] -> opts out of
+                                                closing when the dark
+                                                backdrop itself is clicked
+       form[data-modal-form]                -> gets validation + a
+                                                simulated loading/submit
+                                                flow (see handleModalFormSubmit) */
+
+  const openModalStack = []; // [{ id, trigger }] — supports modals stacked on top of modals
+
+  function getFocusableElements(container) {
+    return Array.from(
+      container.querySelectorAll(
+        'a[href], button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])'
+      )
+    ).filter((el) => el.offsetParent !== null);
+  }
+
+  function openModal(id, triggerEl) {
+    const backdrop = document.getElementById(id);
+    if (!backdrop || !backdrop.classList.contains('modal-backdrop')) {
+      console.warn(`[DLSS] Modal "${id}" not found.`);
+      return;
+    }
+    if (backdrop.classList.contains('is-open')) return;
+
+    openModalStack.push({ id, trigger: triggerEl || document.activeElement });
+    backdrop.classList.add('is-open');
+    document.body.classList.add('modal-open');
+
+    const dialog = backdrop.querySelector('.modal');
+    const focusable = dialog ? getFocusableElements(dialog) : [];
+    const autofocusTarget = focusable.find((el) => !el.hasAttribute('data-modal-close') && !el.classList.contains('modal-close')) || dialog;
+    if (autofocusTarget) autofocusTarget.focus();
+
+    document.dispatchEvent(new CustomEvent('dlss:modal-opened', { detail: { id } }));
+  }
+
+  function closeModal(id) {
+    const backdrop = document.getElementById(id);
+    if (!backdrop || !backdrop.classList.contains('is-open')) return;
+
+    backdrop.classList.remove('is-open');
+
+    const stackIndex = openModalStack.findIndex((entry) => entry.id === id);
+    const entry = stackIndex > -1 ? openModalStack.splice(stackIndex, 1)[0] : null;
+
+    if (openModalStack.length === 0) {
+      document.body.classList.remove('modal-open');
+    }
+
+    if (entry && entry.trigger && typeof entry.trigger.focus === 'function' && document.contains(entry.trigger)) {
+      entry.trigger.focus();
+    }
+
+    document.dispatchEvent(new CustomEvent('dlss:modal-closed', { detail: { id } }));
+  }
+
+  function closeTopModal() {
+    if (!openModalStack.length) return;
+    closeModal(openModalStack[openModalStack.length - 1].id);
+  }
+
+  function closeAllModals() {
+    [...openModalStack].reverse().forEach((entry) => closeModal(entry.id));
+  }
+
+  /* --- Lightweight required/email/match validation for modal forms.
+     Real server-side validation still applies once api.js exists — this
+     is just fast inline feedback matching css/forms.css's `.is-invalid`
+     / `.invalid-feedback` convention. --- */
+  function validateModalForm(form) {
+    let firstInvalid = null;
+
+    form.querySelectorAll('input, select, textarea').forEach((field) => {
+      if (field.type === 'file' || field.type === 'checkbox' || field.type === 'radio') return;
+
+      let isValid = true;
+      if (field.hasAttribute('required') && !field.value.trim()) isValid = false;
+      if (isValid && field.type === 'email' && field.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(field.value)) isValid = false;
+      if (isValid && field.minLength > 0 && field.value && field.value.length < field.minLength) isValid = false;
+      if (isValid && field.hasAttribute('data-match')) {
+        const other = form.querySelector(`#${field.getAttribute('data-match')}`);
+        if (other && field.value !== other.value) isValid = false;
+      }
+
+      field.classList.toggle('is-invalid', !isValid);
+      if (!isValid && !firstInvalid) firstInvalid = field;
+    });
+
+    // Required checkboxes (e.g. "I agree to the Terms").
+    form.querySelectorAll('input[type="checkbox"][required]').forEach((field) => {
+      const isValid = field.checked;
+      field.classList.toggle('is-invalid', !isValid);
+      if (!isValid && !firstInvalid) firstInvalid = field;
+    });
+
+    if (firstInvalid) firstInvalid.focus();
+    return !firstInvalid;
+  }
+
+  // TODO: once api.js exists, replace the setTimeout() below with a real
+  // fetch() call; keep the same success/error branching so
+  // data-modal-success / data-modal-error keep working unchanged.
+  function handleModalFormSubmit(event) {
+    const form = event.target.closest('form[data-modal-form]');
+    if (!form) return;
+    event.preventDefault();
+
+    if (form.dataset.submitting === 'true') return; // guard against duplicate submits
+    if (!validateModalForm(form)) return;
+
+    const submitBtn = document.querySelector(`button[type="submit"][form="${form.id}"]`) || form.querySelector('button[type="submit"]');
+    form.dataset.submitting = 'true';
+    if (submitBtn) {
+      submitBtn.classList.add('is-loading');
+      submitBtn.disabled = true;
+    }
+
+    window.setTimeout(() => {
+      form.dataset.submitting = 'false';
+      if (submitBtn) {
+        submitBtn.classList.remove('is-loading');
+        submitBtn.disabled = false;
+      }
+
+      const backdrop = form.closest('.modal-backdrop');
+      if (backdrop) closeModal(backdrop.id);
+
+      form.reset();
+      form.querySelectorAll('.is-invalid').forEach((field) => field.classList.remove('is-invalid'));
+      form.querySelectorAll('[data-file-list]').forEach((list) => { list.innerHTML = ''; });
+
+      const successId = form.getAttribute('data-modal-success');
+      if (successId) {
+        window.DLSS.Modal.success({
+          title: form.getAttribute('data-success-title') || 'Success!',
+          text: form.getAttribute('data-success-text') || 'Your action was completed successfully.',
+        });
+      }
+    }, 900);
+  }
+
+  /* --- File chips: preview selected files below any `.modal-dropzone`,
+     with drag-over styling and a per-file remove (×) control. --- */
+  function renderFileChips(input) {
+    const group = input.closest('.form-group');
+    const list = group ? group.querySelector('[data-file-list]') : null;
+    if (!list) return;
+
+    list.innerHTML = '';
+    Array.from(input.files || []).forEach((file, index) => {
+      const chip = document.createElement('div');
+      chip.className = 'modal-file-chip';
+      chip.innerHTML =
+        '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2.5h5.5L16 7v9.5a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-13a1 1 0 0 1 1-1Z"/><path d="M11.3 2.5V7H16"/></svg>' +
+        `<span class="modal-file-chip-name">${file.name}</span>` +
+        '<span class="modal-file-chip-remove" role="button" tabindex="0" aria-label="Remove file">' +
+        '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15"/></svg></span>';
+      chip.querySelector('.modal-file-chip-remove').addEventListener('click', () => {
+        const dt = new DataTransfer();
+        Array.from(input.files).forEach((f, i) => { if (i !== index) dt.items.add(f); });
+        input.files = dt.files;
+        renderFileChips(input);
+      });
+      list.appendChild(chip);
+    });
+  }
+
+  function initModals() {
+    const root = document.getElementById('modalRoot');
+    if (!root) return;
+
+    document.addEventListener('click', (event) => {
+      const opener = event.target.closest('[data-modal-open]');
+      if (opener) {
+        event.preventDefault();
+        openModal(opener.getAttribute('data-modal-open'), opener);
+        return;
+      }
+
+      const closer = event.target.closest('[data-modal-close]');
+      if (closer) {
+        const backdrop = closer.closest('.modal-backdrop');
+        if (backdrop) closeModal(backdrop.id);
+        return;
+      }
+
+      // Clicking the dark backdrop itself (not the dialog) closes the
+      // modal, unless it explicitly opts out (e.g. the Payment modal).
+      if (event.target.classList.contains('modal-backdrop') && event.target.getAttribute('data-close-on-backdrop') !== 'false') {
+        closeModal(event.target.id);
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (!openModalStack.length) return;
+
+      if (event.key === 'Escape') {
+        closeTopModal();
+        return;
+      }
+
+      if (event.key === 'Tab') {
+        const topId = openModalStack[openModalStack.length - 1].id;
+        const dialog = document.getElementById(topId)?.querySelector('.modal');
+        if (!dialog) return;
+        const focusable = getFocusableElements(dialog);
+        if (!focusable.length) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+    });
+
+    document.addEventListener('submit', handleModalFormSubmit);
+
+    document.addEventListener('change', (event) => {
+      if (event.target.matches('.modal-dropzone input[type="file"]')) {
+        renderFileChips(event.target);
+      }
+    });
+
+    ['dragenter', 'dragover'].forEach((type) => {
+      document.addEventListener(type, (event) => {
+        const zone = event.target.closest('.modal-dropzone');
+        if (!zone) return;
+        event.preventDefault();
+        zone.classList.add('is-dragover');
+      });
+    });
+    ['dragleave', 'drop'].forEach((type) => {
+      document.addEventListener(type, (event) => {
+        const zone = event.target.closest('.modal-dropzone');
+        if (!zone) return;
+        if (type === 'drop') {
+          event.preventDefault();
+          const input = zone.querySelector('input[type="file"]');
+          if (input && event.dataTransfer?.files?.length) {
+            input.files = event.dataTransfer.files;
+            renderFileChips(input);
+          }
+        }
+        zone.classList.remove('is-dragover');
+      });
+    });
+  }
+
+  document.addEventListener('dlss:component-loaded', (event) => {
+    if (event.detail.name === 'modal') initModals();
+  });
+
+  /* --- Public API for the four generic status modals, so any page/script
+     can trigger them without knowing their internal markup, e.g.:
+       DLSS.Modal.confirm({ title: 'Delete document?', danger: true, onConfirm: () => {...} })
+       DLSS.Modal.success({ text: 'Document uploaded.' })                                   */
+  let confirmHandler = null;
+
+  window.DLSS.Modal = {
+    open: openModal,
+    close: closeModal,
+    closeAll: closeAllModals,
+
+    confirm({ title, text, confirmLabel, cancelLabel, danger = true, onConfirm } = {}) {
+      const titleEl = document.getElementById('confirmModalTitle');
+      const textEl = document.getElementById('confirmModalText');
+      const confirmBtn = document.getElementById('confirmModalConfirmBtn');
+      if (titleEl) titleEl.textContent = title || 'Are you sure?';
+      if (textEl) textEl.textContent = text || 'This action cannot be undone.';
+      if (confirmBtn) {
+        confirmBtn.textContent = confirmLabel || 'Confirm';
+        confirmBtn.className = `btn ${danger ? 'btn-danger' : 'btn-primary'}`;
+        if (confirmHandler) confirmBtn.removeEventListener('click', confirmHandler);
+        confirmHandler = () => {
+          closeModal('confirmModal');
+          if (typeof onConfirm === 'function') onConfirm();
+        };
+        confirmBtn.addEventListener('click', confirmHandler);
+      }
+      const cancelBtn = document.querySelector('#confirmModal [data-modal-close]');
+      if (cancelBtn) cancelBtn.textContent = cancelLabel || 'Cancel';
+      openModal('confirmModal');
+    },
+
+    success({ title, text } = {}) {
+      const titleEl = document.getElementById('successModalTitle');
+      const textEl = document.getElementById('successModalText');
+      if (titleEl) titleEl.textContent = title || 'Success!';
+      if (textEl) textEl.textContent = text || 'Your action was completed successfully.';
+      openModal('successModal');
+    },
+
+    error({ title, text } = {}) {
+      const titleEl = document.getElementById('errorModalTitle');
+      const textEl = document.getElementById('errorModalText');
+      if (titleEl) titleEl.textContent = title || 'Something Went Wrong';
+      if (textEl) textEl.textContent = text || "Please try again, or contact support if the problem continues.";
+      openModal('errorModal');
+    },
+
+    notify({ title, text, meta, viewHref } = {}) {
+      const titleEl = document.getElementById('notificationModalTitle');
+      const textEl = document.getElementById('notificationModalText');
+      const metaEl = document.getElementById('notificationModalMeta');
+      const viewBtn = document.getElementById('notificationModalPrimaryBtn');
+      if (titleEl) titleEl.textContent = title || 'New Update';
+      if (textEl) textEl.textContent = text || 'You have a new update on your account.';
+      if (metaEl) metaEl.textContent = meta || 'Just now';
+      if (viewBtn) viewBtn.href = viewHref || '#';
+      openModal('notificationModal');
+    },
+
+    viewDocument({ name, category, size, date, uploader } = {}) {
+      const setText = (attr, value) => {
+        const el = document.querySelector(`[data-doc-${attr}]`);
+        if (el && value !== undefined) el.textContent = value;
+      };
+      setText('name', name);
+      setText('category', category);
+      setText('size', size);
+      setText('date', date);
+      setText('uploader', uploader);
+      openModal('viewDocumentModal');
+    },
+
+    pay({ invoiceNumber, description, amount } = {}) {
+      const setText = (attr, value) => {
+        const el = document.querySelector(`[data-invoice-${attr}]`);
+        if (el && value !== undefined) el.textContent = value;
+      };
+      setText('number', invoiceNumber);
+      setText('description', description);
+      setText('amount', amount);
+      openModal('paymentModal');
+    },
+  };
+
+  /* ==========================================================================
      BOOTSTRAP
      ========================================================================== */
 
   document.addEventListener('DOMContentLoaded', () => {
     loadIncludes();
 
-    // If the navbar/sidebar markup is already inlined in the page (rather
-    // than loaded via data-include), initialize it immediately too.
+    // If the navbar/sidebar/footer/modal markup is already inlined in the
+    // page (rather than loaded via data-include), initialize it immediately.
     if (document.getElementById('navbar') && !document.querySelector('[data-include="navbar"]')) {
       initNavbar();
     }
@@ -506,10 +864,14 @@ window.DLSS = window.DLSS || {};
     if (document.getElementById('footer') && !document.querySelector('[data-include="footer"]')) {
       initFooter();
     }
+    if (document.getElementById('modalRoot') && !document.querySelector('[data-include="modal"]')) {
+      initModals();
+    }
   });
 
   window.DLSS.loadIncludes = loadIncludes;
   window.DLSS.initNavbar = initNavbar;
   window.DLSS.initFooter = initFooter;
   window.DLSS.initSidebar = initSidebar;
+  window.DLSS.initModals = initModals;
 })();
