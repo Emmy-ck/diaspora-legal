@@ -642,28 +642,35 @@ h4 {
 /* ==========================================================================
    6c. FOOTER — COLUMN PROGRESSION
    ==========================================================================
-   Mobile = one stacked column (see style.css). Tablets get a 2-column
-   grid with the brand block spanning the full first row; desktops spread
-   everything across one row, giving the brand column extra width. */
+   Mobile = brand row stacked (logo above tagline) + one stacked column of
+   the six link groups (see style.css). Small screens get a 2-column link
+   grid; tablets get 3; desktops spread all six link groups across a single
+   row and the brand row/bottom bar switch from stacked+centered to a wide
+   two-side layout. */
 
 @media (min-width: 576px) {
   .footer-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
 
-  .footer-brand-col {
-    grid-column: 1 / -1;
+@media (min-width: 768px) {
+  .footer-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .footer-brand-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-8);
   }
 }
 
 @media (min-width: 992px) {
   .footer-grid {
-    grid-template-columns: 2fr 1fr 1fr 1.5fr;
-    gap: var(--space-10);
-  }
-
-  .footer-brand-col {
-    grid-column: auto;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: var(--space-6);
   }
 
   .footer-inner {
@@ -675,6 +682,10 @@ h4 {
     align-items: center;
     justify-content: space-between;
     text-align: left;
+  }
+
+  .footer-bottom-text {
+    align-items: flex-start;
   }
 }
 

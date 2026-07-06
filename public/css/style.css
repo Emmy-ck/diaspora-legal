@@ -774,9 +774,10 @@ body.has-sidebar-toggle .navbar-sidebar-toggle {
 /* ==========================================================================
    4. FOOTER
    ==========================================================================
-   Mobile-first: base = a single stacked column (brand, link groups,
-   contact, bottom bar). From `md` (768px) up the link groups arrange into
-   a multi-column grid — see responsive.css. */
+   Mobile-first: base = a full-width brand row (logo + tagline) followed by
+   a single stacked column of six link groups (Company, Services, Resources,
+   Contact, Follow Us, Legal), then a bottom trust bar. From `sm` (576px) up
+   the link groups arrange into a 2/3/6-column grid — see responsive.css. */
 
 .footer {
   background-color: var(--color-primary);
@@ -786,6 +787,16 @@ body.has-sidebar-toggle .navbar-sidebar-toggle {
 
 .footer-inner {
   padding-block: var(--space-12) var(--space-8);
+}
+
+/* --- Brand / mission row (sits above the link grid, full width) --- */
+.footer-brand-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding-bottom: var(--space-8);
+  margin-bottom: var(--space-8);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .footer-grid {
@@ -800,6 +811,7 @@ body.has-sidebar-toggle .navbar-sidebar-toggle {
   align-items: center;
   gap: var(--space-3);
   color: var(--color-text-inverse);
+  flex-shrink: 0;
 }
 
 .footer-brand-mark {
@@ -840,18 +852,17 @@ body.has-sidebar-toggle .navbar-sidebar-toggle {
 }
 
 .footer-tagline {
-  margin-top: var(--space-4);
-  max-width: 36ch;
+  max-width: 48ch;
   font-size: var(--font-size-sm);
   line-height: var(--line-height-relaxed);
   color: var(--color-primary-200);
 }
 
-/* --- Social icons --- */
+/* --- Social icons (used inside the "Follow Us" column) --- */
 .footer-social {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--space-2);
-  margin-top: var(--space-5);
 }
 
 .footer-social-link {
@@ -927,9 +938,10 @@ body.has-sidebar-toggle .navbar-sidebar-toggle {
   color: var(--color-secondary);
 }
 
-/* --- Bottom bar --- */
+/* --- Bottom trust bar: copyright, brand promise, security badges --- */
 .footer-bottom {
   border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(0, 0, 0, 0.12);
 }
 
 .footer-bottom-inner {
@@ -941,18 +953,64 @@ body.has-sidebar-toggle .navbar-sidebar-toggle {
   text-align: center;
 }
 
+.footer-bottom-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+}
+
 .footer-copyright {
   font-size: var(--font-size-xs);
   color: var(--color-primary-200);
 }
 
-.footer-legal-links {
+.footer-tagline-strip {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wide);
+  color: var(--color-secondary);
+}
+
+.footer-trust-badges {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: var(--space-4);
+  gap: var(--space-2) var(--space-5);
 }
 
-.footer-legal-links .footer-link {
+.footer-trust-badge {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding-right: var(--space-5);
   font-size: var(--font-size-xs);
+  color: var(--color-primary-200);
+}
+
+.footer-trust-badge::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: calc(var(--space-5) * -1 / 2);
+  transform: translateY(-50%);
+  width: 1px;
+  height: 0.875rem;
+  background-color: rgba(255, 255, 255, 0.18);
+}
+
+.footer-trust-badge:last-child {
+  padding-right: 0;
+}
+
+.footer-trust-badge:last-child::after {
+  display: none;
+}
+
+.footer-trust-badge svg {
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
+  color: var(--color-secondary);
 }
