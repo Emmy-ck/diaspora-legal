@@ -1,0 +1,91 @@
+<!--
+  DLSS Loader Component — feedback for every asynchronous operation.
+
+  Covers all five loader types from the spec:
+    1. Full-Page  — #pageLoader below, a singleton overlay toggled via
+                     DLSS.Loader.page.show()/hide() (js/app.js). Use for
+                     major transitions: login, registration, dashboard
+                     init, app startup, session verification.
+    2. Inline     — cloned from #inlineLoaderTemplate via
+                     DLSS.Loader.inline(container, { message }) into any
+                     section while its content loads (cases, claims,
+                     consultations, messages, reports, notifications).
+    3. Button     — no markup needed; it's the existing `.btn.is-loading`
+                     state (css/buttons.css). Toggle it with
+                     DLSS.Loader.button(buttonEl, true/false) so
+                     duplicate submissions are prevented consistently.
+    4. Progress   — plain markup using css/loader.css's `.progress`
+                     classes (see below/DLSS.Loader.progress()) for
+                     long-running, trackable work (file upload, document
+                     processing, report generation, due diligence,
+                     data import).
+    5. Skeleton   — css/loader.css's `.skeleton*` primitives, composed
+                     directly in a page's own markup for its exact shape
+                     (dashboard cards, case/claim lists, lawyer profiles,
+                     consultation history, reports, documents), or
+                     generated generically via
+                     DLSS.Loader.skeleton(container, { rows, avatar }).
+
+  Usage: include this fragment once per page (e.g.
+  `<div data-include="loader"></div>` right before the closing `</body>`)
+  alongside css/loader.css. See the "LOADER LIBRARY" section of js/app.js
+  for the full DLSS.Loader API, including the `timeout` option on
+  `DLSS.Loader.page.show()` that surfaces the error/retry state below
+  automatically if loading takes too long.
+
+  EXAMPLE — a standalone progress bar (no template needed, just markup):
+    <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+      <div class="progress-track"><div class="progress-bar"></div></div>
+      <div class="progress-meta">
+        <span>Uploading Retainer_Agreement.pdf&hellip;</span>
+        <span class="progress-label">0%</span>
+      </div>
+    </div>
+    <script>DLSS.Loader.progress(progressEl, 42);</script>
+-->
+<div id="loaderRoot" data-component="loader">
+
+  <!-- ============================================================
+       1. FULL-PAGE LOADER (singleton)
+       ============================================================ -->
+  <div class="loader-overlay" id="pageLoader" role="alert" aria-live="assertive" aria-busy="true">
+    <div class="loader-panel">
+      <span class="spinner spinner-lg" aria-hidden="true"></span>
+      <p class="loader-message" id="pageLoaderMessage">Please wait&hellip;</p>
+
+      <div class="loader-error">
+        <div class="loader-error-icon">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="8"/><path d="M7.3 7.3l5.4 5.4M12.7 7.3l-5.4 5.4"/></svg>
+        </div>
+        <p class="loader-error-message" id="pageLoaderErrorMessage">This is taking longer than expected.</p>
+        <button type="button" class="btn btn-sm btn-outline" id="pageLoaderRetryBtn" hidden>Retry</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       2. INLINE LOADER TEMPLATE
+       ============================================================ -->
+  <template id="inlineLoaderTemplate">
+    <div class="loader-inline">
+      <span class="spinner" aria-hidden="true"></span>
+      <span class="loader-inline-message" role="status"></span>
+    </div>
+  </template>
+
+  <!-- ============================================================
+       3. INLINE ERROR / TIMEOUT TEMPLATE
+       (used by DLSS.Loader.error() for inline sections; the full-page
+       loader has its own copy above so it can hide/reveal in place)
+       ============================================================ -->
+  <template id="loaderErrorTemplate">
+    <div class="loader-error">
+      <div class="loader-error-icon">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="8"/><path d="M7.3 7.3l5.4 5.4M12.7 7.3l-5.4 5.4"/></svg>
+      </div>
+      <p class="loader-error-message"></p>
+      <button type="button" class="btn btn-sm btn-outline" data-loader-retry>Retry</button>
+    </div>
+  </template>
+
+</div>

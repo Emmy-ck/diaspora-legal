@@ -269,13 +269,8 @@
   inset: 0;
   transform: translateX(-100%);
   background-image: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.7), transparent);
-  animation: table-skeleton-shimmer 1.4s infinite;
-}
-
-@keyframes table-skeleton-shimmer {
-  100% {
-    transform: translateX(100%);
-  }
+  /* Shared keyframe — see animations.css */
+  animation: skeleton-shimmer 1.4s infinite;
 }
 
 /* ==========================================================================

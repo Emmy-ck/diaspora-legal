@@ -847,14 +847,218 @@ window.DLSS = window.DLSS || {};
   };
 
   /* ==========================================================================
+     LOADER LIBRARY
+     ==========================================================================
+     Feedback for every asynchronous operation (see components/loader.html
+     for the full spec + markup this drives): a full-page overlay, inline
+     section loaders, a `.btn.is-loading` helper (buttons.css owns that
+     state itself — this just toggles it consistently), a progress-bar
+     setter, and generic skeleton placeholders. Works via the singleton
+     overlay + <template>s in components/loader.html, so it doesn't matter
+     whether that markup was already in the page or injected later via
+     loadIncludes(). All lookups happen on demand (no cached refs), so it
+     also doesn't matter whether loader.html loads before or after the
+     first DLSS.Loader.* call. */
+
+  let pageLoaderTimeoutId = null;
+  let pageLoaderRetryHandler = null;
+
+  function loaderRefs() {
+    return {
+      overlay: document.getElementById('pageLoader'),
+      message: document.getElementById('pageLoaderMessage'),
+      errorMessage: document.getElementById('pageLoaderErrorMessage'),
+      retryBtn: document.getElementById('pageLoaderRetryBtn'),
+      inlineTemplate: document.getElementById('inlineLoaderTemplate'),
+      errorTemplate: document.getElementById('loaderErrorTemplate'),
+    };
+  }
+
+  /* --- 1. Full-page loader: for major, app-blocking transitions (login,
+     registration, dashboard init, app startup, session verification).
+     Locks background scroll/interaction while active. --- */
+  const PageLoader = {
+    show(message, { timeout, onTimeout } = {}) {
+      const { overlay, message: messageEl } = loaderRefs();
+      if (!overlay) {
+        console.warn('[DLSS] Page loader markup not found — include components/loader.html.');
+        return;
+      }
+
+      overlay.classList.remove('has-error');
+      if (messageEl) messageEl.textContent = message || 'Please wait\u2026';
+      overlay.classList.add('is-active');
+      document.body.classList.add('loader-open');
+
+      window.clearTimeout(pageLoaderTimeoutId);
+      if (timeout) {
+        pageLoaderTimeoutId = window.setTimeout(() => {
+          PageLoader.error(
+            'This is taking longer than expected. Please check your connection and try again.',
+            onTimeout
+          );
+        }, timeout);
+      }
+    },
+
+    hide() {
+      const { overlay } = loaderRefs();
+      if (!overlay) return;
+      window.clearTimeout(pageLoaderTimeoutId);
+      overlay.classList.remove('is-active', 'has-error');
+    },
+
+    /* Swaps the spinner for an error + optional Retry button without
+       dropping the overlay — used automatically when `timeout` elapses,
+       or call directly if a blocking request itself fails. */
+    error(message, onRetry) {
+      const { overlay, errorMessage, retryBtn } = loaderRefs();
+      if (!overlay) return;
+      window.clearTimeout(pageLoaderTimeoutId);
+
+      overlay.classList.add('is-active', 'has-error');
+      document.body.classList.add('loader-open');
+      if (errorMessage) errorMessage.textContent = message || 'Something went wrong. Please try again.';
+
+      if (retryBtn) {
+        if (pageLoaderRetryHandler) retryBtn.removeEventListener('click', pageLoaderRetryHandler);
+        retryBtn.hidden = typeof onRetry !== 'function';
+        if (typeof onRetry === 'function') {
+          pageLoaderRetryHandler = onRetry;
+          retryBtn.addEventListener('click', pageLoaderRetryHandler);
+        }
+      }
+    },
+  };
+
+  /* --- 2. Inline loader: a small, non-blocking spinner + message inside
+     a specific section (cases, claims, consultations, messages, reports,
+     notifications) while its content loads. Returns a handle so the
+     caller can remove it once real content is ready to render. --- */
+  function showInlineLoader(container, { message = 'Loading\u2026', row = false } = {}) {
+    const { inlineTemplate } = loaderRefs();
+    if (!container || !inlineTemplate) return { hide() {} };
+
+    container.querySelectorAll(':scope > .loader-inline').forEach((el) => el.remove());
+
+    const node = inlineTemplate.content.firstElementChild.cloneNode(true);
+    if (row) node.classList.add('loader-inline-row');
+    node.querySelector('.loader-inline-message').textContent = message;
+    container.appendChild(node);
+
+    return { hide: () => node.remove() };
+  }
+
+  /* --- 3. Button loader: thin wrapper around buttons.css's `.btn.is-loading`
+     so every call site disables the button (preventing duplicate
+     submissions) the same way. --- */
+  function setButtonLoading(button, isLoading = true) {
+    if (!button) return;
+    button.classList.toggle('is-loading', isLoading);
+    button.disabled = isLoading;
+  }
+
+  /* --- 4. Progress loader: determinate (0-100) or 'indeterminate', for
+     long-running-but-trackable work (file upload, document processing,
+     report generation, due diligence, data import). Accepts either the
+     `.progress` wrapper or the `.progress-bar` element itself. --- */
+  function setProgress(el, value) {
+    if (!el) return;
+    const root = el.classList.contains('progress') ? el : el.closest('.progress');
+    const bar = el.classList.contains('progress-bar') ? el : el.querySelector('.progress-bar');
+    if (!bar) return;
+
+    if (value === 'indeterminate') {
+      bar.classList.add('is-indeterminate');
+      bar.style.width = '';
+      root?.removeAttribute('aria-valuenow');
+      return;
+    }
+
+    const pct = Math.max(0, Math.min(100, Number(value) || 0));
+    bar.classList.remove('is-indeterminate');
+    bar.style.width = `${pct}%`;
+    root?.setAttribute('aria-valuenow', String(Math.round(pct)));
+
+    const label = (root || bar.parentElement)?.querySelector('.progress-label');
+    if (label) label.textContent = `${Math.round(pct)}%`;
+  }
+
+  /* --- 5. Skeleton loader: generic placeholder rows for any container
+     (dashboard cards, case/claim lists, lawyer profiles, consultation
+     history, reports, documents) when a bespoke skeleton shaped to that
+     content isn't worth hand-authoring — see css/loader.css "5. SKELETON
+     LOADER" for the primitives to compose a custom one instead. --- */
+  function renderSkeleton(container, { rows = 3, avatar = false } = {}) {
+    if (!container) return;
+    container.innerHTML = '';
+    container.classList.add('is-loading-skeleton');
+
+    if (avatar) {
+      const row = document.createElement('div');
+      row.className = 'skeleton-row';
+      row.innerHTML = '<span class="skeleton skeleton-avatar"></span><span class="skeleton skeleton-text" style="width:40%"></span>';
+      container.appendChild(row);
+    }
+
+    for (let i = 0; i < rows; i++) {
+      const line = document.createElement('span');
+      line.className = 'skeleton skeleton-text';
+      if (i === rows - 1) line.style.width = '60%';
+      container.appendChild(line);
+    }
+  }
+
+  function clearSkeleton(container) {
+    if (!container) return;
+    container.classList.remove('is-loading-skeleton');
+    container.innerHTML = '';
+  }
+
+  /* --- 6. Loading-failed state: swaps a container's contents (inline
+     sections only — the full-page loader uses PageLoader.error() so it
+     can hide/reveal in place instead of re-cloning) for a message + an
+     optional Retry action. --- */
+  function renderLoaderError(container, { message = 'Something went wrong. Please try again.', onRetry } = {}) {
+    const { errorTemplate } = loaderRefs();
+    if (!container || !errorTemplate) return;
+
+    container.innerHTML = '';
+    container.classList.remove('is-loading-skeleton');
+
+    const node = errorTemplate.content.firstElementChild.cloneNode(true);
+    node.querySelector('.loader-error-message').textContent = message;
+    const retryBtn = node.querySelector('[data-loader-retry]');
+    if (retryBtn) {
+      if (typeof onRetry === 'function') {
+        retryBtn.addEventListener('click', onRetry);
+      } else {
+        retryBtn.hidden = true;
+      }
+    }
+    container.appendChild(node);
+  }
+
+  window.DLSS.Loader = {
+    page: PageLoader,
+    inline: showInlineLoader,
+    button: setButtonLoading,
+    progress: setProgress,
+    skeleton: renderSkeleton,
+    clearSkeleton,
+    error: renderLoaderError,
+  };
+
+  /* ==========================================================================
      BOOTSTRAP
      ========================================================================== */
 
   document.addEventListener('DOMContentLoaded', () => {
     loadIncludes();
 
-    // If the navbar/sidebar/footer/modal markup is already inlined in the
-    // page (rather than loaded via data-include), initialize it immediately.
+    // If the navbar/sidebar/footer/modal/loader markup is already inlined
+    // in the page (rather than loaded via data-include), initialize it
+    // immediately.
     if (document.getElementById('navbar') && !document.querySelector('[data-include="navbar"]')) {
       initNavbar();
     }

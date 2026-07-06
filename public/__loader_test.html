@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Loader Component — Test Harness</title>
+<link rel="stylesheet" href="/css/variables.css" />
+<link rel="stylesheet" href="/css/style.css" />
+<link rel="stylesheet" href="/css/layout.css" />
+<link rel="stylesheet" href="/css/buttons.css" />
+<link rel="stylesheet" href="/css/cards.css" />
+<link rel="stylesheet" href="/css/loader.css" />
+<link rel="stylesheet" href="/css/animations.css" />
+<link rel="stylesheet" href="/css/responsive.css" />
+</head>
+<body data-role="client" style="padding: var(--space-8);">
+<h1 style="margin-bottom: var(--space-6);">Loader Component — Test Harness</h1>
+
+<section style="margin-bottom: var(--space-8);">
+  <h2>1 &amp; 6. Full-page loader</h2>
+  <div style="display:flex; flex-wrap:wrap; gap: var(--space-3);">
+    <button class="btn btn-primary" id="btnPageLoader">Show (2s, auto-hide)</button>
+    <button class="btn btn-outline" id="btnPageLoaderTimeout">Show with 2s timeout (error+retry)</button>
+    <button class="btn btn-outline-danger" id="btnPageLoaderHide">Force hide</button>
+  </div>
+</section>
+
+<section style="margin-bottom: var(--space-8);">
+  <h2>2. Inline loader</h2>
+  <div class="card" style="max-width:360px;">
+    <div class="card-body" id="inlineDemo" style="min-height:120px;">
+      <p>Real content goes here once loaded.</p>
+    </div>
+  </div>
+  <div style="display:flex; gap: var(--space-3); margin-top: var(--space-3);">
+    <button class="btn btn-outline" id="btnInlineShow">Loading cases&hellip;</button>
+    <button class="btn btn-outline" id="btnInlineHide">Restore content</button>
+  </div>
+</section>
+
+<section style="margin-bottom: var(--space-8);">
+  <h2>3. Button loader</h2>
+  <button class="btn btn-secondary" id="btnSubmit">Book Consultation</button>
+</section>
+
+<section style="margin-bottom: var(--space-8);">
+  <h2>4. Progress loader</h2>
+  <div class="progress" id="uploadProgress" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="max-width:360px;">
+    <div class="progress-track"><div class="progress-bar"></div></div>
+    <div class="progress-meta">
+      <span>Uploading Retainer_Agreement.pdf&hellip;</span>
+      <span class="progress-label">0%</span>
+    </div>
+  </div>
+  <div style="display:flex; gap: var(--space-3); margin-top: var(--space-3);">
+    <button class="btn btn-outline" id="btnProgressRun">Run to 100%</button>
+    <button class="btn btn-outline" id="btnProgressIndeterminate">Indeterminate</button>
+  </div>
+</section>
+
+<section style="margin-bottom: var(--space-8);">
+  <h2>5. Skeleton loader</h2>
+  <div class="card" style="max-width:360px;">
+    <div class="card-body" id="skeletonDemo" style="min-height:100px;"></div>
+  </div>
+  <div style="display:flex; gap: var(--space-3); margin-top: var(--space-3);">
+    <button class="btn btn-outline" id="btnSkeletonShow">Show skeleton</button>
+    <button class="btn btn-outline" id="btnSkeletonClear">Clear</button>
+  </div>
+</section>
+
+<section style="margin-bottom: var(--space-8);">
+  <h2>Inline error/retry state</h2>
+  <div class="card" style="max-width:360px;">
+    <div class="card-body" id="errorDemo" style="min-height:100px;"></div>
+  </div>
+  <button class="btn btn-outline" id="btnErrorShow" style="margin-top: var(--space-3);">Simulate failed load</button>
+</section>
+
+<div data-include="loader"></div>
+
+<script src="/js/app.js" defer></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('btnPageLoader').addEventListener('click', () => {
+      DLSS.Loader.page.show('Signing you in\u2026');
+      setTimeout(() => DLSS.Loader.page.hide(), 2000);
+    });
+
+    document.getElementById('btnPageLoaderTimeout').addEventListener('click', () => {
+      DLSS.Loader.page.show('Loading dashboard\u2026', {
+        timeout: 2000,
+        onTimeout: () => DLSS.Loader.page.hide(),
+      });
+    });
+
+    document.getElementById('btnPageLoaderHide').addEventListener('click', () => DLSS.Loader.page.hide());
+
+    let inlineHandle = null;
+    document.getElementById('btnInlineShow').addEventListener('click', () => {
+      const container = document.getElementById('inlineDemo');
+      container.innerHTML = '';
+      inlineHandle = DLSS.Loader.inline(container, { message: 'Loading cases\u2026' });
+    });
+    document.getElementById('btnInlineHide').addEventListener('click', () => {
+      if (inlineHandle) inlineHandle.hide();
+      document.getElementById('inlineDemo').innerHTML = '<p>3 cases loaded.</p>';
+    });
+
+    const submitBtn = document.getElementById('btnSubmit');
+    submitBtn.addEventListener('click', () => {
+      DLSS.Loader.button(submitBtn, true);
+      setTimeout(() => DLSS.Loader.button(submitBtn, false), 1800);
+    });
+
+    const progressEl = document.getElementById('uploadProgress');
+    document.getElementById('btnProgressRun').addEventListener('click', () => {
+      let pct = 0;
+      const id = setInterval(() => {
+        pct += 10;
+        DLSS.Loader.progress(progressEl, pct);
+        if (pct >= 100) clearInterval(id);
+      }, 200);
+    });
+    document.getElementById('btnProgressIndeterminate').addEventListener('click', () => {
+      DLSS.Loader.progress(progressEl, 'indeterminate');
+    });
+
+    document.getElementById('btnSkeletonShow').addEventListener('click', () => {
+      DLSS.Loader.skeleton(document.getElementById('skeletonDemo'), { rows: 3, avatar: true });
+    });
+    document.getElementById('btnSkeletonClear').addEventListener('click', () => {
+      DLSS.Loader.clearSkeleton(document.getElementById('skeletonDemo'));
+    });
+
+    document.getElementById('btnErrorShow').addEventListener('click', () => {
+      DLSS.Loader.error(document.getElementById('errorDemo'), {
+        message: 'Could not load cases. Please try again.',
+        onRetry: () => DLSS.Loader.skeleton(document.getElementById('errorDemo'), { rows: 2 }),
+      });
+    });
+  });
+</script>
+</body>
+</html>

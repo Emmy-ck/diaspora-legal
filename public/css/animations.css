@@ -43,7 +43,17 @@
   to { opacity: 0; }
 }
 
+/* --- Spinners (css/loader.css `.spinner`, css/buttons.css `.btn.is-loading`). --- */
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+}
+
+/* --- Skeleton shimmer sweep — shared by css/loader.css `.skeleton`,
+   css/cards.css `.card-skeleton`, and css/tables.css `.table-skeleton-cell`
+   so every placeholder in the app pulses in sync with the same motion. --- */
+@keyframes skeleton-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
 }

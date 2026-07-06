@@ -1,0 +1,328 @@
+/* ==========================================================================
+   DLSS — Loader
+   ==========================================================================
+   Visual feedback for asynchronous work: a spinner primitive, the
+   full-page overlay + inline variants built from it, a linear progress
+   bar, and generic skeleton placeholders. The fifth loader type in the
+   spec — the Button Loader — needs no new CSS: it's the existing
+   `.btn.is-loading` state in buttons.css (see its "8. LOADING BUTTON"
+   section) — this file's js/app.js "LOADER LIBRARY" section just adds a
+   small `DLSS.Loader.button()` helper on top of it.
+
+   Depends on variables.css. Shared keyframes (`spin`, `skeleton-shimmer`)
+   live in animations.css so buttons/cards/tables/loader all pulse in
+   sync with the exact same motion.
+   ========================================================================== */
+
+/* ==========================================================================
+   1. SPINNER (base primitive)
+   ========================================================================== */
+
+.spinner {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 3px solid currentColor;
+  border-top-color: transparent;
+  border-radius: var(--radius-full);
+  color: var(--color-secondary);
+  animation: spin 0.7s linear infinite;
+}
+
+.spinner-sm { width: 1rem; height: 1rem; border-width: 2px; }
+.spinner-lg { width: 2.5rem; height: 2.5rem; border-width: 3px; }
+
+.spinner-light { color: var(--color-white); }
+.spinner-primary { color: var(--color-primary); }
+
+/* ==========================================================================
+   2. FULL-PAGE LOADER
+   ==========================================================================
+   Singleton overlay (see components/loader.html, #pageLoader) toggled via
+   `DLSS.Loader.page.show()/hide()` (js/app.js). Blocks interaction with
+   the rest of the page and locks background scroll (`.loader-open` on
+   <body>) — reserved for major, app-blocking transitions (login,
+   registration, dashboard init, app startup, session verification). */
+
+.loader-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-index-loader);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  background-color: rgba(248, 244, 240, 0.92);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--transition-base), visibility var(--transition-base);
+}
+
+.loader-overlay.is-active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.loader-open {
+  overflow: hidden;
+}
+
+.loader-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  max-width: 320px;
+  text-align: center;
+}
+
+.loader-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+}
+
+.loader-message {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+}
+
+/* Swap the spinner for an error state without swapping the whole overlay,
+   e.g. after DLSS.Loader.page's optional timeout elapses. */
+.loader-overlay .loader-error {
+  display: none;
+}
+
+.loader-overlay.has-error .spinner {
+  display: none;
+}
+
+.loader-overlay.has-error .loader-error {
+  display: flex;
+}
+
+/* ==========================================================================
+   3. INLINE LOADER
+   ==========================================================================
+   Small, non-blocking spinner + message for a specific section (a card,
+   a table body, a list) while its content loads — cloned from
+   #inlineLoaderTemplate via `DLSS.Loader.inline(container, { message })`. */
+
+.loader-inline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-10) var(--space-4);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.loader-inline-message {
+  font-size: var(--font-size-sm);
+}
+
+/* Compact row variant — inline with other content instead of centered in
+   an empty section (e.g. "Loading more results…" beneath a list). */
+.loader-inline-row {
+  flex-direction: row;
+  padding: var(--space-4);
+}
+
+/* ==========================================================================
+   4. PROGRESS LOADER
+   ==========================================================================
+   Determinate (percentage-driven, e.g. file upload) or indeterminate
+   (unknown duration, e.g. "Processing…") linear progress bar. Set/update
+   via `DLSS.Loader.progress(el, percentOrIndeterminate)`. */
+
+.progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.progress-track {
+  height: 8px;
+  overflow: hidden;
+  background-color: var(--color-bg-muted);
+  border-radius: var(--radius-full);
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  border-radius: var(--radius-full);
+  background-color: var(--color-secondary);
+  transition: width var(--transition-base);
+}
+
+.progress-bar.is-indeterminate {
+  width: 40% !important;
+  animation: progress-indeterminate 1.2s ease-in-out infinite;
+}
+
+@keyframes progress-indeterminate {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(250%); }
+}
+
+.progress-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.progress-label {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+}
+
+/* Status color variants (e.g. a failed upload) */
+.progress-bar.progress-error { background-color: var(--color-error); }
+.progress-bar.progress-success { background-color: var(--color-success); }
+
+/* ==========================================================================
+   5. SKELETON LOADER
+   ==========================================================================
+   Generic placeholder primitives for any content shape (dashboard cards,
+   case/claim lists, lawyer profiles, consultation history, reports,
+   documents) — compose them directly in markup, or generate a simple
+   stack via `DLSS.Loader.skeleton(container, { rows, avatar })`.
+   `.card-skeleton`/`.table-skeleton-cell` (cards.css/tables.css) are the
+   same technique specialized for those two layouts; all three share the
+   `skeleton-shimmer` keyframe (animations.css). */
+
+.skeleton {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  background-color: var(--color-gray-200);
+  border-radius: var(--radius-sm);
+}
+
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.7), transparent);
+  animation: skeleton-shimmer 1.4s infinite;
+}
+
+.skeleton-text {
+  width: 100%;
+  height: 0.75rem;
+  margin-bottom: var(--space-2);
+}
+
+.skeleton-text:last-child {
+  margin-bottom: 0;
+}
+
+.skeleton-title {
+  width: 45%;
+  height: 1.1rem;
+  margin-bottom: var(--space-3);
+}
+
+.skeleton-circle,
+.skeleton-avatar {
+  flex-shrink: 0;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--radius-full);
+}
+
+.skeleton-thumb {
+  flex-shrink: 0;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-md);
+}
+
+.skeleton-btn {
+  width: 6rem;
+  height: 2.25rem;
+  border-radius: var(--radius-md);
+}
+
+.skeleton-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.skeleton-row .skeleton-text {
+  margin-bottom: 0;
+}
+
+/* Applied by DLSS.Loader.skeleton()/clearSkeleton() to the container the
+   placeholders were rendered into. */
+.is-loading-skeleton {
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   6. LOADER ERROR / TIMEOUT STATE
+   ==========================================================================
+   Shown in place of a spinner (inline or full-page) when loading fails
+   or exceeds a timeout — see `DLSS.Loader.error()` / `DLSS.Loader.page`'s
+   `timeout` option (js/app.js). */
+
+.loader-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+}
+
+.loader-error-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--radius-full);
+  background-color: var(--color-error-bg);
+  color: var(--color-error);
+}
+
+.loader-error-icon svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.loader-error-message {
+  margin: 0;
+  max-width: 320px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+/* ==========================================================================
+   7. REDUCED MOTION
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner,
+  .skeleton::after,
+  .progress-bar.is-indeterminate {
+    animation-duration: 1.8s;
+  }
+}

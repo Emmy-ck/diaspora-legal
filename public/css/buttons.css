@@ -257,7 +257,8 @@
   border-top-color: transparent;
   border-radius: var(--radius-full);
   color: inherit;
-  animation: btn-spin 0.6s linear infinite;
+  /* Shared keyframe — see animations.css */
+  animation: spin 0.6s linear infinite;
 }
 
 /* Ensure the spinner is visible against each variant's background,
@@ -288,12 +289,6 @@
 
 .btn-outline-light.is-loading::after {
   color: var(--color-white);
-}
-
-@keyframes btn-spin {
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 /* ==========================================================================

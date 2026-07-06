@@ -278,4 +278,5 @@
   --z-index-popover: 1060;
   --z-index-tooltip: 1070;
   --z-index-toast: 1080;
+  --z-index-loader: 1090;
 }
