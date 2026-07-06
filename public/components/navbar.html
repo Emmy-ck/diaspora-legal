@@ -1,18 +1,42 @@
 <!--
-  DLSS Navbar — shared, reusable component.
+  DLSS Navbar — shared, reusable top navigation component.
 
   Usage: fetch this fragment and inject it into a page's
   `<div data-include="navbar"></div>` placeholder (see js/app.js,
-  `initIncludes()` / `initNavbar()`), or paste it directly at the top of
-  <body>. All links use root-absolute paths (e.g. "/pages/website/about.html")
-  so it renders correctly no matter how deeply nested the including page is.
+  `loadIncludes()` / `initNavbar()`), or paste it directly at the top of
+  <body>. All links use root-absolute paths so it renders correctly no
+  matter how deeply nested the including page is.
 
-  Add `data-nav-link="home|about|services|faq|contact"` matching the
-  current page to the <body> tag (e.g. <body data-page="about">) and
-  js/app.js will automatically mark the matching link as `.active`.
+  Role-aware, single component for the whole app:
+
+    <body>                       -> guest state: marketing links + Log In / Get Started
+    <body data-role="client">    -> authenticated state: search + notifications +
+    <body data-role="lawyer">       messages + profile dropdown (no nav links —
+    <body data-role="admin">        the sidebar owns dashboard navigation once signed in)
+
+  initNavbar() (js/app.js) reads `body[data-role]` to decide whether to show
+  the guest link list + actions or the authenticated actions, marks the
+  guest link matching the current URL as active automatically, fills in
+  the signed-in user's info/avatar and notification/message counts (from
+  localStorage for now — swap for a real session once auth.js/api.js
+  exist), and wires up the mobile menu, the mobile search toggle, the
+  "Services" dropdown, and the profile dropdown.
+
+  On dashboard pages that also render the sidebar, drop a
+  `<button class="sidebar-toggle-mobile">` anywhere inside the navbar
+  markup (see the icon button below) to let it open the sidebar's
+  off-canvas drawer — app.js already listens for that class globally.
 -->
 <header class="navbar" id="navbar" data-component="navbar">
   <div class="container navbar-inner">
+    <button
+      type="button"
+      class="navbar-sidebar-toggle sidebar-toggle-mobile"
+      aria-label="Toggle sidebar menu"
+    >
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2.5 5h15M2.5 10h15M2.5 15h15"/></svg>
+    </button>
+
     <a href="/index.html" class="navbar-brand" aria-label="DLSS — Diaspora Legal Support Services, home">
       <span class="navbar-brand-mark" aria-hidden="true">DL</span>
       <span class="navbar-brand-text">
@@ -20,6 +44,31 @@
         <span class="navbar-brand-subtitle">Diaspora Legal Support</span>
       </span>
     </a>
+
+    <!-- ===================== SEARCH ===================== -->
+    <div class="navbar-search" id="navbarSearch">
+      <form class="navbar-search-form" role="search" action="#" onsubmit="return false;">
+        <svg class="navbar-search-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8.8" cy="8.8" r="5.8"/><path d="M17 17l-3.9-3.9"/></svg>
+        <input
+          type="search"
+          class="navbar-search-input"
+          id="navbarSearchInput"
+          placeholder="Search lawyers, consultations, documents…"
+          aria-label="Search"
+        />
+      </form>
+    </div>
+
+    <button
+      type="button"
+      class="navbar-search-toggle"
+      id="navbarSearchToggle"
+      aria-label="Toggle search"
+      aria-controls="navbarSearch"
+      aria-expanded="false"
+    >
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.8" cy="8.8" r="5.8"/><path d="M17 17l-3.9-3.9"/></svg>
+    </button>
 
     <button
       type="button"
@@ -35,17 +84,129 @@
     </button>
 
     <nav class="navbar-menu" id="navbarMenu" aria-label="Primary">
-      <ul class="navbar-links">
-        <li><a href="/index.html" class="navbar-link" data-nav-link="home">Home</a></li>
-        <li><a href="/pages/website/about.html" class="navbar-link" data-nav-link="about">About</a></li>
-        <li><a href="/pages/website/services.html" class="navbar-link" data-nav-link="services">Services</a></li>
-        <li><a href="/pages/website/faq.html" class="navbar-link" data-nav-link="faq">FAQ</a></li>
-        <li><a href="/pages/website/contact.html" class="navbar-link" data-nav-link="contact">Contact</a></li>
+      <!-- ===================== NAV LINKS (role-scoped) ===================== -->
+      <ul class="navbar-links" data-nav-role="guest">
+        <li><a href="/index.html" class="navbar-link">Home</a></li>
+        <li><a href="/pages/website/about.html" class="navbar-link">About</a></li>
+
+        <li class="navbar-dropdown">
+          <button
+            type="button"
+            class="navbar-link navbar-dropdown-toggle"
+            id="navbarServicesToggle"
+            aria-haspopup="true"
+            aria-expanded="false"
+            aria-controls="navbarServicesMenu"
+            data-active-prefix="/pages/website/services.html"
+          >
+            Services
+            <svg class="navbar-dropdown-chevron" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7.5l5 5 5-5"/></svg>
+          </button>
+
+          <ul class="navbar-dropdown-menu" id="navbarServicesMenu" role="menu" aria-label="Services" hidden>
+            <li>
+              <a href="/pages/website/services.html#consultations" class="navbar-dropdown-link" role="menuitem">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4.5h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H8.5l-4 3v-3H3a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1Z"/></svg>
+                Consultations
+              </a>
+            </li>
+            <li>
+              <a href="/pages/website/services.html#find-a-lawyer" class="navbar-dropdown-link" role="menuitem">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6.5" width="15" height="10.5" rx="2"/><path d="M7 6.5V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1.5M2.5 11.5h15"/></svg>
+                Find a Lawyer
+              </a>
+            </li>
+            <li>
+              <a href="/pages/website/services.html#quick-consultation" class="navbar-dropdown-link" role="menuitem">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11 2 4 11.5h5l-1 6.5 7-9.5h-5l1-6.5Z"/></svg>
+                Quick Legal Consultation
+              </a>
+            </li>
+            <li>
+              <a href="/pages/website/services.html#document-authentication" class="navbar-dropdown-link" role="menuitem">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2.5h5.5L16 7v9.5a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-13a1 1 0 0 1 1-1Z"/><path d="M11.3 2.5V7H16M7.3 12.3l1.5 1.5 3-3.5"/></svg>
+                Document Authentication &amp; Notarization
+              </a>
+            </li>
+            <li>
+              <a href="/pages/website/services.html#succession-property" class="navbar-dropdown-link" role="menuitem">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.3 10 3l7 6.3"/><path d="M5 8v8.5a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V8"/></svg>
+                Succession &amp; Property Matters
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <li><a href="/pages/website/contact.html" class="navbar-link">Contact</a></li>
       </ul>
 
-      <div class="navbar-actions">
+      <!-- No client/lawyer/admin link list here on purpose — once signed
+           in, the sidebar owns all dashboard navigation, so duplicating
+           it in the navbar too would just be clutter. The navbar's
+           authenticated state below (search, notifications, messages,
+           profile) is all it needs. -->
+
+      <!-- ===================== GUEST ACTIONS ===================== -->
+      <div class="navbar-actions" data-nav-role="guest">
         <a href="/pages/auth/login.html" class="btn btn-outline-light btn-sm">Log In</a>
         <a href="/pages/auth/register.html" class="btn btn-secondary btn-sm">Get Started</a>
+      </div>
+
+      <!-- ===================== AUTHENTICATED ACTIONS ===================== -->
+      <div class="navbar-actions navbar-actions-authenticated" data-nav-role="authenticated" hidden>
+        <a href="#" class="navbar-icon-btn" id="navbarNotifications" aria-label="Notifications">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2.7a4 4 0 0 0-4 4v2.3c0 1-.4 2-1.2 2.7L4 12.6h12l-.8-.9c-.8-.7-1.2-1.7-1.2-2.7V6.7a4 4 0 0 0-4-4Z"/><path d="M8 15.3a2 2 0 0 0 4 0"/></svg>
+          <span class="navbar-icon-btn-label">Notifications</span>
+          <span class="navbar-badge" id="navbarNotificationsBadge" hidden>0</span>
+        </a>
+
+        <a href="#" class="navbar-icon-btn" id="navbarMessages" aria-label="Messages">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4.5" width="16" height="11" rx="2"/><path d="M2.5 5.5L10 11l7.5-5.5"/></svg>
+          <span class="navbar-icon-btn-label">Messages</span>
+          <span class="navbar-badge" id="navbarMessagesBadge" hidden>0</span>
+        </a>
+
+        <div class="navbar-profile" id="navbarProfile">
+          <button
+            type="button"
+            class="navbar-profile-toggle"
+            id="navbarProfileToggle"
+            aria-haspopup="true"
+            aria-expanded="false"
+            aria-controls="navbarProfileMenu"
+          >
+            <span class="navbar-profile-avatar" id="navbarProfileAvatar">JD</span>
+            <span class="navbar-profile-info">
+              <span class="navbar-profile-name" id="navbarProfileName">Jane Doe</span>
+              <span class="navbar-profile-role" id="navbarProfileRole">Client</span>
+            </span>
+            <svg class="navbar-profile-chevron" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7.5l5 5 5-5"/></svg>
+          </button>
+
+          <div class="navbar-profile-menu" id="navbarProfileMenu" role="menu" hidden>
+            <div class="navbar-profile-menu-header">
+              <span class="navbar-profile-avatar" id="navbarProfileMenuAvatar">JD</span>
+              <span class="navbar-profile-info">
+                <span class="navbar-profile-name" id="navbarProfileMenuName">Jane Doe</span>
+                <span class="navbar-profile-email" id="navbarProfileMenuEmail">jane.doe@email.com</span>
+              </span>
+            </div>
+            <div class="navbar-profile-menu-divider"></div>
+            <a href="#" class="navbar-profile-menu-link" id="navbarProfileLink" role="menuitem">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="6.8" r="3"/><path d="M3.3 17c1.4-3.6 3.9-5.3 6.7-5.3s5.3 1.7 6.7 5.3"/></svg>
+              My Profile
+            </a>
+            <a href="#" class="navbar-profile-menu-link" id="navbarSettingsLink" role="menuitem">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="2.4"/><path d="M10 2.7v2.1M10 15.2v2.1M2.7 10h2.1M15.2 10h2.1M5.1 5.1l1.5 1.5M13.4 13.4l1.5 1.5M5.1 14.9l1.5-1.5M13.4 6.6l1.5-1.5"/></svg>
+              Settings
+            </a>
+            <div class="navbar-profile-menu-divider"></div>
+            <button type="button" class="navbar-profile-menu-link navbar-profile-menu-logout" id="navbarLogout" role="menuitem">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 17H4.5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1H8M13 14l4-4-4-4M17 10H7.5"/></svg>
+              Log Out
+            </button>
+          </div>
+        </div>
       </div>
     </nav>
   </div>

@@ -138,9 +138,15 @@ textarea:focus-visible,
 /* ==========================================================================
    3. NAVBAR
    ==========================================================================
-   Mobile-first: base = hamburger toggle + collapsible dropdown menu.
-   From `md` (768px) up, the menu becomes a permanent horizontal row —
-   see responsive.css. */
+   Mobile-first: base = hamburger toggle + collapsible dropdown menu, with
+   the search bar collapsed behind an icon toggle. From `md` (768px) up,
+   the search bar becomes permanently visible; from `lg` (992px) the link
+   menu becomes a permanent horizontal row too — see responsive.css.
+
+   The component is role-aware: elements are grouped by `data-nav-role`
+   ("guest" | "client" | "lawyer" | "admin" | "authenticated") and
+   initNavbar() (js/app.js) reveals only the group matching the signed-in
+   user, hiding the rest via the `hidden` attribute. */
 
 .navbar {
   position: sticky;
@@ -159,10 +165,38 @@ textarea:focus-visible,
   position: relative;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
+  gap: var(--space-3);
   min-height: var(--header-height);
   padding-block: var(--space-3);
+}
+
+/* --- Sidebar drawer toggle (dashboard pages only) ---
+   Hidden by default; only shown when the navbar shares a page with the
+   sidebar (JS adds `.has-sidebar-toggle` to <body> once it detects a
+   `#sidebar` in the DOM — see initNavbar()). */
+.navbar-sidebar-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-md);
+  color: var(--color-text-inverse);
+  transition: background-color var(--transition-fast);
+}
+
+.navbar-sidebar-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.navbar-sidebar-toggle svg {
+  width: 1.375rem;
+  height: 1.375rem;
+}
+
+body.has-sidebar-toggle .navbar-sidebar-toggle {
+  display: inline-flex;
 }
 
 /* --- Brand / logo --- */
@@ -209,6 +243,86 @@ textarea:focus-visible,
   text-transform: uppercase;
   letter-spacing: var(--letter-spacing-wider);
   white-space: nowrap;
+}
+
+/* --- Search bar ---
+   Mobile: collapsed behind `.navbar-search-toggle`; expands to an
+   absolutely-positioned full-width bar below the header when `.is-open`.
+   Desktop (md+): always visible, inline, with a constrained width. */
+.navbar-search {
+  display: none;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.navbar-search.is-open {
+  display: block;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  padding: var(--space-3) var(--container-padding);
+  background-color: var(--color-primary);
+  border-bottom: 1px solid rgba(208, 144, 24, 0.25);
+  box-shadow: var(--shadow-lg);
+}
+
+.navbar-search-form {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.navbar-search-icon {
+  position: absolute;
+  left: var(--space-3);
+  width: 1.125rem;
+  height: 1.125rem;
+  color: var(--color-primary-200);
+  pointer-events: none;
+}
+
+.navbar-search-input {
+  width: 100%;
+  padding: var(--space-2) var(--space-3) var(--space-2) calc(var(--space-3) * 2 + 1.125rem);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-full);
+  background-color: rgba(255, 255, 255, 0.08);
+  color: var(--color-text-inverse);
+  font-size: var(--font-size-sm);
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.navbar-search-input::placeholder {
+  color: var(--color-primary-200);
+}
+
+.navbar-search-input:focus {
+  outline: none;
+  background-color: rgba(255, 255, 255, 0.12);
+  border-color: var(--color-secondary);
+}
+
+.navbar-search-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-left: auto;
+  border-radius: var(--radius-md);
+  color: var(--color-text-inverse);
+  transition: background-color var(--transition-fast);
+}
+
+.navbar-search-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.navbar-search-toggle svg {
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 /* --- Hamburger toggle (mobile) --- */
@@ -303,6 +417,68 @@ textarea:focus-visible,
   font-weight: var(--font-weight-semibold);
 }
 
+/* --- Dropdown (e.g. "Services") ---
+   Mobile: an inline accordion that expands below its toggle. Desktop
+   (lg+): an absolutely-positioned panel — see responsive.css. */
+.navbar-dropdown {
+  position: relative;
+}
+
+.navbar-dropdown-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.navbar-dropdown-chevron {
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
+  transition: transform var(--transition-fast);
+}
+
+.navbar-dropdown-toggle[aria-expanded='true'] .navbar-dropdown-chevron {
+  transform: rotate(180deg);
+}
+
+.navbar-dropdown-menu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: var(--space-1) 0 var(--space-2) var(--space-3);
+  padding-left: var(--space-3);
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.navbar-dropdown-menu[hidden] {
+  display: none;
+}
+
+.navbar-dropdown-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--color-primary-100);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.navbar-dropdown-link:hover {
+  color: var(--color-text-inverse);
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.navbar-dropdown-link svg {
+  flex-shrink: 0;
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
 .navbar-actions {
   display: flex;
   flex-direction: column;
@@ -314,6 +490,197 @@ textarea:focus-visible,
 
 .navbar-actions .btn {
   width: 100%;
+}
+
+/* --- Authenticated actions: notifications, messages, profile --- */
+.navbar-actions-authenticated {
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.navbar-icon-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--color-primary-100);
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.navbar-icon-btn:hover {
+  color: var(--color-text-inverse);
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.navbar-icon-btn svg {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.navbar-icon-btn-label {
+  flex: 1 1 auto;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.navbar-badge {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding-inline: var(--space-1);
+  border-radius: var(--radius-full);
+  background-color: var(--color-secondary);
+  color: var(--color-secondary-contrast);
+  font-size: 0.6875rem;
+  font-weight: var(--font-weight-bold);
+}
+
+/* --- Profile dropdown --- */
+.navbar-profile {
+  position: relative;
+  padding-top: var(--space-3);
+  margin-top: var(--space-2);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.navbar-profile-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--color-text-inverse);
+  transition: background-color var(--transition-fast);
+}
+
+.navbar-profile-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.navbar-profile-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius-full);
+  background-color: var(--color-secondary);
+  color: var(--color-secondary-contrast);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-sm);
+  overflow: hidden;
+}
+
+.navbar-profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.navbar-profile-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1 1 auto;
+  text-align: left;
+  line-height: 1.3;
+}
+
+.navbar-profile-name {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-inverse);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.navbar-profile-role {
+  font-size: var(--font-size-xs);
+  color: var(--color-primary-200);
+  text-transform: capitalize;
+}
+
+.navbar-profile-email {
+  font-size: var(--font-size-xs);
+  color: var(--color-primary-200);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.navbar-profile-chevron {
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
+  color: var(--color-primary-200);
+  transition: transform var(--transition-fast);
+}
+
+.navbar-profile-toggle[aria-expanded='true'] .navbar-profile-chevron {
+  transform: rotate(180deg);
+}
+
+.navbar-profile-menu {
+  margin-top: var(--space-2);
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.navbar-profile-menu-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3) var(--space-3);
+}
+
+.navbar-profile-menu-divider {
+  height: 1px;
+  margin: var(--space-1) var(--space-2);
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.navbar-profile-menu-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--color-primary-100);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  text-align: left;
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.navbar-profile-menu-link:hover {
+  color: var(--color-text-inverse);
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.navbar-profile-menu-link svg {
+  flex-shrink: 0;
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.navbar-profile-menu-logout {
+  color: var(--color-error-300);
+}
+
+.navbar-profile-menu-logout:hover {
+  color: var(--color-white);
+  background-color: var(--color-error);
 }
 
 /* ==========================================================================
