@@ -1,62 +1,26 @@
 /**
  * DLSS — Application bootstrap.
  *
- * Loads shared HTML components (navbar, footer, etc.) into their
- * placeholders and wires up global UI behavior. Written as a plain script
- * (no bundler/module system) so it can be dropped into any page with:
+ * Wires up global UI behavior (navbar, sidebar, footer, modal, loader,
+ * pagination). Written as a plain script (no bundler/module system) so
+ * it can be dropped into any page with:
  *
+ *   <script src="/js/componentLoader.js" defer></script>
  *   <script src="/js/app.js" defer></script>
  *
- * Other scripts (router.js, auth.js, notifications.js, ...) attach
- * themselves to the same `window.DLSS` namespace to stay dependency-free
- * and avoid polluting the global scope.
+ * Component HTML fragments (navbar.html, footer.html, ...) are fetched
+ * and injected by js/componentLoader.js — the one file responsible for
+ * that — which this script listens to via the `dlss:component-loaded`
+ * event rather than loading anything itself. Other scripts (router.js,
+ * auth.js, notifications.js, ...) attach themselves to the same
+ * `window.DLSS` namespace to stay dependency-free and avoid polluting
+ * the global scope.
  */
 
 window.DLSS = window.DLSS || {};
 
 (function () {
   'use strict';
-
-  /* ==========================================================================
-     COMPONENT INCLUDES
-     ==========================================================================
-     Any element with `data-include="navbar"` gets replaced with the
-     contents of /components/navbar.html. Usage:
-
-       <div data-include="navbar"></div>
-       <div data-include="footer"></div>
-
-     Dispatches a `dlss:component-loaded` event (with `detail.name` and
-     `detail.el`) on `document` once each fragment is injected, so other
-     init functions can react without caring about load order.
-     ========================================================================== */
-
-  async function loadIncludes() {
-    const nodes = document.querySelectorAll('[data-include]');
-
-    await Promise.all(
-      Array.from(nodes).map(async (node) => {
-        const name = node.getAttribute('data-include');
-
-        try {
-          const response = await fetch(`/components/${name}.html`);
-
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
-          }
-
-          node.outerHTML = await response.text();
-        } catch (error) {
-          console.error(`[DLSS] Failed to load component "${name}":`, error);
-          return;
-        }
-
-        document.dispatchEvent(
-          new CustomEvent('dlss:component-loaded', { detail: { name } })
-        );
-      })
-    );
-  }
 
   /* ==========================================================================
      NAVBAR
@@ -1235,11 +1199,12 @@ window.DLSS = window.DLSS || {};
      ========================================================================== */
 
   document.addEventListener('DOMContentLoaded', () => {
-    loadIncludes();
-
-    // If the navbar/sidebar/footer/modal/loader markup is already inlined
-    // in the page (rather than loaded via data-include), initialize it
-    // immediately.
+    // Component fragments themselves are loaded by js/componentLoader.js
+    // (make sure its <script> tag comes before this one) — it fires the
+    // `dlss:component-loaded` events each init*() above already listens
+    // for. This just covers the case where navbar/sidebar/footer/modal
+    // markup is already inlined in the page (rather than loaded via
+    // data-include), so it still needs to be initialized immediately.
     if (document.getElementById('navbar') && !document.querySelector('[data-include="navbar"]')) {
       initNavbar();
     }
@@ -1254,7 +1219,6 @@ window.DLSS = window.DLSS || {};
     }
   });
 
-  window.DLSS.loadIncludes = loadIncludes;
   window.DLSS.initNavbar = initNavbar;
   window.DLSS.initFooter = initFooter;
   window.DLSS.initSidebar = initSidebar;

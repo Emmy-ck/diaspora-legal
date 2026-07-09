@@ -2,10 +2,11 @@
   DLSS Footer — shared, reusable component.
 
   Usage: fetch this fragment and inject it into a page's
-  `<div data-include="footer"></div>` placeholder (see js/app.js,
-  `loadIncludes()` / `initFooter()`), or paste it directly at the bottom of
-  <body>. All links use root-absolute paths (e.g. "/pages/website/about.html")
-  so it renders correctly no matter how deeply nested the including page is.
+  `<div data-include="footer"></div>` placeholder (see js/componentLoader.js's
+  `loadIncludes()` and js/app.js's `initFooter()`), or paste it directly
+  at the bottom of <body>. All links use root-absolute paths (e.g.
+  "/pages/website/about.html") so it renders correctly no matter how
+  deeply nested the including page is.
 
   Structure: a brand row (logo + tagline) followed by six link columns
   (Company, Services, Resources, Contact, Follow Us, Legal), then a bottom
