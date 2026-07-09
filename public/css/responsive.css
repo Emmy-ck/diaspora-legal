@@ -969,6 +969,37 @@ h4 {
   .card-slider-hint {
     display: none;
   }
+
+  .about-bio {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: var(--space-12);
+    align-items: start;
+    max-width: none;
+  }
+
+  .about-purpose {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-10);
+  }
+
+  .about-values {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-8) var(--space-10);
+  }
+
+  .about-why {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-8) var(--space-10);
+  }
+
+  .about-why-item {
+    padding-left: 0;
+    padding-top: var(--space-12);
+  }
+
+  .about-why-item::before {
+    top: 0;
+  }
 }
 
 @media (min-width: 992px) {
@@ -982,5 +1013,13 @@ h4 {
 
   .hero-actions {
     min-width: 16rem;
+  }
+
+  .about-values {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .about-why {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
