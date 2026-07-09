@@ -3,8 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Diaspora Legal APP</title>
+  <meta name="description" content="DLSS — Professional legal support for the Kenyan diaspora. Book consultations, work with verified advocates, and manage your legal matters from anywhere in the world." />
+  <title>DLSS — Trusted Legal Support for the Diaspora</title>
   <link rel="icon" href="/favicon.ico" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet" />
 
   <!-- Design tokens first, then base/reset, then layout, then components,
        then responsive.css LAST (see its header comment for why). -->
@@ -14,12 +19,10 @@
   <link rel="stylesheet" href="/css/buttons.css" />
   <link rel="stylesheet" href="/css/forms.css" />
   <link rel="stylesheet" href="/css/cards.css" />
-  <link rel="stylesheet" href="/css/tables.css" />
   <link rel="stylesheet" href="/css/modal.css" />
   <link rel="stylesheet" href="/css/notifications.css" />
   <link rel="stylesheet" href="/css/loader.css" />
-  <link rel="stylesheet" href="/css/pagination.css" />
-  <link rel="stylesheet" href="/css/dashboard.css" />
+  <link rel="stylesheet" href="/css/marketing.css" />
   <link rel="stylesheet" href="/css/animations.css" />
   <link rel="stylesheet" href="/css/responsive.css" />
 </head>
@@ -27,20 +30,436 @@
   <div data-include="navbar"></div>
 
   <main>
-    <section class="section">
-      <div class="container">
-        <h1 class="text-display" style="color: var(--color-primary);">Trusted Legal Support.</h1>
-        <p style="max-width: 40ch; margin-top: var(--space-4);">
-          Professional, efficient and convenient legal support and guidance
-          within the Kenya jurisdiction — wherever you are.
+    <!-- ============================================================
+         HERO — brand first, one headline, one lead, CTA group
+         Search lives in the navbar; Contact Lawyer is the primary CTA.
+         ============================================================ -->
+    <section class="hero" aria-labelledby="heroTitle">
+      <div class="hero-media" aria-hidden="true">
+        <img
+          src="/images/marketing/hero-bg.jpg"
+          alt=""
+          width="1920"
+          height="1280"
+          fetchpriority="high"
+          decoding="async"
+        />
+      </div>
+      <div class="container hero-inner">
+        <div class="hero-brand" aria-label="Diaspora Legal Support Services">
+          <span class="hero-brand-mark">DLSS</span>
+          <span class="hero-brand-name">Diaspora Legal</span>
+        </div>
+
+        <h1 class="hero-title" id="heroTitle">Trusted legal support, wherever you are.</h1>
+        <p class="hero-lead">
+          Professional guidance within the Kenya jurisdiction — book a consultation with a verified advocate in minutes.
         </p>
+
+        <div class="hero-actions">
+          <button type="button" class="btn btn-secondary btn-lg" data-modal-open="bookConsultationModal">
+            Contact a Lawyer
+          </button>
+          <a href="/pages/auth/register.html?as=lawyer" class="btn btn-outline-light btn-lg">Register as a Lawyer</a>
+          <a href="/pages/website/contact.html" class="btn btn-outline-light btn-lg">Contact</a>
+        </div>
+
+        <ul class="hero-trust" aria-label="Why clients trust DLSS">
+          <li class="hero-trust-item">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 2.5 3.5 5v4.5c0 4 2.8 7.5 6.5 8.5 3.7-1 6.5-4.5 6.5-8.5V5L10 2.5Z"/><path d="M7.5 10l1.8 1.8L13 8"/></svg>
+            Verified advocates
+          </li>
+          <li class="hero-trust-item">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="14" height="11" rx="1.5"/><path d="M7 5V3.5a3 3 0 0 1 6 0V5"/></svg>
+            Client confidentiality
+          </li>
+          <li class="hero-trust-item">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="7.5"/><path d="M10 6v4.5l3 1.5"/></svg>
+            Kenya jurisdiction
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SERVICES OVERVIEW
+         ============================================================ -->
+    <section class="section section-alt" id="services" aria-labelledby="servicesTitle">
+      <div class="container">
+        <header class="section-header is-centered">
+          <p class="section-eyebrow">Our Services</p>
+          <h2 class="section-title" id="servicesTitle">Legal support built for the diaspora</h2>
+          <p class="section-lead">
+            From advisory to registration — clear, confidential help for matters that span borders.
+          </p>
+        </header>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <article class="service-card">
+            <div class="service-card-icon" aria-hidden="true">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2.5 3.5 5v4.5c0 4 2.8 7.5 6.5 8.5 3.7-1 6.5-4.5 6.5-8.5V5L10 2.5Z"/></svg>
+            </div>
+            <h3 class="service-card-title">Legal Advisory</h3>
+            <p class="service-card-text">Family, property, employment, immigration, succession, and land disputes — guided by advocates who know Kenyan law.</p>
+            <a href="/pages/website/services.html#legal-advisory" class="service-card-link">
+              Explore
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10h12M11 5l5 5-5 5"/></svg>
+            </a>
+          </article>
+
+          <article class="service-card">
+            <div class="service-card-icon" aria-hidden="true">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2.5h5.5L16 7v9.5a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-13a1 1 0 0 1 1-1Z"/><path d="M11.3 2.5V7H16"/></svg>
+            </div>
+            <h3 class="service-card-title">Document Review</h3>
+            <p class="service-card-text">Contracts, leases, NDAs, powers of attorney, and sale agreements reviewed before you sign.</p>
+            <a href="/pages/website/services.html#document-review" class="service-card-link">
+              Explore
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10h12M11 5l5 5-5 5"/></svg>
+            </a>
+          </article>
+
+          <article class="service-card">
+            <div class="service-card-icon" aria-hidden="true">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16.5V5.5A1.5 1.5 0 0 1 5.5 4h6L16 8.5v8a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 4 16.5Z"/><path d="M7 11h6M7 14h4"/></svg>
+            </div>
+            <h3 class="service-card-title">Legal Drafting</h3>
+            <p class="service-card-text">Affidavits, demand letters, notices, and statutory declarations prepared to Kenyan standards.</p>
+            <a href="/pages/website/services.html#legal-drafting" class="service-card-link">
+              Explore
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10h12M11 5l5 5-5 5"/></svg>
+            </a>
+          </article>
+
+          <article class="service-card">
+            <div class="service-card-icon" aria-hidden="true">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="5.5"/><path d="M16.5 16.5 13 13"/><path d="M7 9h4M9 7v4"/></svg>
+            </div>
+            <h3 class="service-card-title">Due Diligence</h3>
+            <p class="service-card-text">Land, company, and court searches — plus identity and property verification before you commit.</p>
+            <a href="/pages/website/services.html#due-diligence" class="service-card-link">
+              Explore
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10h12M11 5l5 5-5 5"/></svg>
+            </a>
+          </article>
+
+          <article class="service-card">
+            <div class="service-card-icon" aria-hidden="true">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2 2.5 6.5h15L10 2Z"/><path d="M3 8v7M7.3 8v7M12.7 8v7M17 8v7M2.5 17h15"/></svg>
+            </div>
+            <h3 class="service-card-title">Registration Services</h3>
+            <p class="service-card-text">Company, NGO, and trademark registration, annual returns, and company changes — handled end to end.</p>
+            <a href="/pages/website/services.html#registration-services" class="service-card-link">
+              Explore
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10h12M11 5l5 5-5 5"/></svg>
+            </a>
+          </article>
+
+          <article class="service-card">
+            <div class="service-card-icon" aria-hidden="true">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="14" height="11" rx="1.5"/><path d="M3 8h14M7 12h3"/></svg>
+            </div>
+            <h3 class="service-card-title">Secure Payments</h3>
+            <p class="service-card-text">Transparent invoices and receipts — pay securely via M-Pesa, card, bank transfer, or PayPal.</p>
+            <a href="/pages/website/services.html#book-consultation" class="service-card-link">
+              Get started
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10h12M11 5l5 5-5 5"/></svg>
+            </a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         HOW IT WORKS
+         ============================================================ -->
+    <section class="section" id="how-it-works" aria-labelledby="howTitle">
+      <div class="container">
+        <header class="section-header is-centered">
+          <p class="section-eyebrow">How It Works</p>
+          <h2 class="section-title" id="howTitle">From inquiry to resolution in three steps</h2>
+          <p class="section-lead">
+            A clear path from your first question to a confirmed consultation — no office visit required.
+          </p>
+        </header>
+
+        <ol class="steps">
+          <li class="step">
+            <h3 class="step-title">Tell us what you need</h3>
+            <p class="step-text">Describe your matter, upload documents, and choose video, phone, or an in-person appointment.</p>
+          </li>
+          <li class="step">
+            <h3 class="step-title">Match with an advocate</h3>
+            <p class="step-text">We connect you with a verified DLSS lawyer whose practice area fits your case.</p>
+          </li>
+          <li class="step">
+            <h3 class="step-title">Consult &amp; move forward</h3>
+            <p class="step-text">Meet securely, track progress in your dashboard, and manage documents and payments in one place.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         FEATURED LAWYERS
+         ============================================================ -->
+    <section class="section section-muted" id="lawyers" aria-labelledby="lawyersTitle">
+      <div class="container">
+        <div class="section-header-row">
+          <header>
+            <p class="section-eyebrow">Featured Advocates</p>
+            <h2 class="section-title" id="lawyersTitle">Meet lawyers ready to help</h2>
+            <p class="section-lead">Verified practitioners across family, property, business, and immigration law.</p>
+          </header>
+          <a href="/pages/website/services.html#book-consultation" class="btn btn-outline">View all advocates</a>
+        </div>
+
+        <div class="card-slider" role="list" aria-label="Featured advocates">
+          <article class="lawyer-card" role="listitem">
+            <div class="lawyer-card-avatar is-initials" aria-hidden="true">AY</div>
+            <h3 class="lawyer-card-name">
+              Amina Yusuf
+              <svg class="verified-icon" width="16" height="16" viewBox="0 0 20 20" fill="currentColor" aria-label="Verified"><path d="M10 1.5 12.1 3l2.5-.3.9 2.3 2.3.9-.3 2.5L19 10l-1.5 2.1.3 2.5-2.3.9-.9 2.3-2.5-.3L10 18.5 7.9 17l-2.5.3-.9-2.3-2.3-.9.3-2.5L1 10l1.5-2.1-.3-2.5 2.3-.9.9-2.3 2.5.3L10 1.5Zm-1.2 10.2 4.5-4.5-1.1-1.1-3.4 3.4-1.6-1.6-1.1 1.1 2.7 2.7Z"/></svg>
+            </h3>
+            <p class="lawyer-card-specialty">Family &amp; Property Law</p>
+            <div class="rating lawyer-card-rating" aria-label="4.9 out of 5 stars">
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10 2.5 12.2 7l4.8.7-3.5 3.4.8 4.8L10 13.6 5.7 16l.8-4.8L3 7.7 7.8 7 10 2.5Z"/></svg>
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10 2.5 12.2 7l4.8.7-3.5 3.4.8 4.8L10 13.6 5.7 16l.8-4.8L3 7.7 7.8 7 10 2.5Z"/></svg>
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10 2.5 12.2 7l4.8.7-3.5 3.4.8 4.8L10 13.6 5.7 16l.8-4.8L3 7.7 7.8 7 10 2.5Z"/></svg>
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10 2.5 12.2 7l4.8.7-3.5 3.4.8 4.8L10 13.6 5.7 16l.8-4.8L3 7.7 7.8 7 10 2.5Z"/></svg>
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10 2.5 12.2 7l4.8.7-3.5 3.4.8 4.8L10 13.6 5.7 16l.8-4.8L3 7.7 7.8 7 10 2.5Z"/></svg>
+              <span class="rating-value">4.9</span>
+              <span class="rating-count">(128)</span>
+            </div>
+            <div class="lawyer-card-meta">
+              <span>12 yrs experience</span>
+              <span>Nairobi</span>
+            </div>
+            <div class="lawyer-card-actions">
+              <button type="button" class="btn btn-secondary btn-sm" data-modal-open="bookConsultationModal">Book</button>
+              <button type="button" class="btn btn-outline btn-sm" data-modal-open="contactAdvocateModal">Message</button>
+            </div>
+          </article>
+
+          <article class="lawyer-card" role="listitem">
+            <div class="lawyer-card-avatar is-initials" aria-hidden="true">DK</div>
+            <h3 class="lawyer-card-name">
+              David Kimani
+              <svg class="verified-icon" width="16" height="16" viewBox="0 0 20 20" fill="currentColor" aria-label="Verified"><path d="M10 1.5 12.1 3l2.5-.3.9 2.3 2.3.9-.3 2.5L19 10l-1.5 2.1.3 2.5-2.3.9-.9 2.3-2.5-.3L10 18.5 7.9 17l-2.5.3-.9-2.3-2.3-.9.3-2.5L1 10l1.5-2.1-.3-2.5 2.3-.9.9-2.3 2.5.3L10 1.5Zm-1.2 10.2 4.5-4.5-1.1-1.1-3.4 3.4-1.6-1.6-1.1 1.1 2.7 2.7Z"/></svg>
+            </h3>
+            <p class="lawyer-card-specialty">Business &amp; Registrations</p>
+            <div class="rating lawyer-card-rating" aria-label="4.8 out of 5 stars">
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10 2.5 12.2 7l4.8.7-3.5 3.4.8 4.8L10 13.6 5.7 16l.8-4.8L3 7.7 7.8 7 10 2.5Z"/></svg>
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10 2.5 12.2 7l4.8.7-3.5 3.4.8 4.8L10 13.6 5.7 16l.8-4.8L3 7.7 7.8 7 10 2.5Z"/></svg>
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10 2.5 12.2 7l4.8.7-3.5 3.4.8 4.8L10 13.6 5.7 16l.8-4.8L3 7.7 7.8 7 10 2.5Z"/></svg>
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10 2.5 12.2 7l4.8.7-3.5 3.4.8 4.8L10 13.6 5.7 16l.8-4.8L3 7.7 7.8 7 10 2.5Z"/></svg>
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10 2.5 12.2 7l4.8.7-3.5 3.4.8 4.8L10 13.6 5.7 16l.8-4.8L3 7.7 7.8 7 10 2.5Z"/></svg>
+              <span class="rating-value">4.8</span>
+              <span class="rating-count">(96)</span>
+            </div>
+            <div class="lawyer-card-meta">
+              <span>9 yrs experience</span>
+              <span>Nairobi</span>
+            </div>
+            <div class="lawyer-card-actions">
+              <button type="button" class="btn btn-secondary btn-sm" data-modal-open="bookConsultationModal">Book</button>
+              <button type="button" class="btn btn-outline btn-sm" data-modal-open="contactAdvocateModal">Message</button>
+            </div>
+          </article>
+
+          <article class="lawyer-card" role="listitem">
+            <div class="lawyer-card-avatar is-initials" aria-hidden="true">GW</div>
+            <h3 class="lawyer-card-name">
+              Grace Wanjiru
+              <svg class="verified-icon" width="16" height="16" viewBox="0 0 20 20" fill="currentColor" aria-label="Verified"><path d="M10 1.5 12.1 3l2.5-.3.9 2.3 2.3.9-.3 2.5L19 10l-1.5 2.1.3 2.5-2.3.9-.9 2.3-2.5-.3L10 18.5 7.9 17l-2.5.3-.9-2.3-2.3-.9.3-2.5L1 10l1.5-2.1-.3-2.5 2.3-.9.9-2.3 2.5.3L10 1.5Zm-1.2 10.2 4.5-4.5-1.1-1.1-3.4 3.4-1.6-1.6-1.1 1.1 2.7 2.7Z"/></svg>
+            </h3>
+            <p class="lawyer-card-specialty">Immigration &amp; Succession</p>
+            <div class="rating lawyer-card-rating" aria-label="5.0 out of 5 stars">
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10 2.5 12.2 7l4.8.7-3.5 3.4.8 4.8L10 13.6 5.7 16l.8-4.8L3 7.7 7.8 7 10 2.5Z"/></svg>
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10 2.5 12.2 7l4.8.7-3.5 3.4.8 4.8L10 13.6 5.7 16l.8-4.8L3 7.7 7.8 7 10 2.5Z"/></svg>
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10 2.5 12.2 7l4.8.7-3.5 3.4.8 4.8L10 13.6 5.7 16l.8-4.8L3 7.7 7.8 7 10 2.5Z"/></svg>
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10 2.5 12.2 7l4.8.7-3.5 3.4.8 4.8L10 13.6 5.7 16l.8-4.8L3 7.7 7.8 7 10 2.5Z"/></svg>
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10 2.5 12.2 7l4.8.7-3.5 3.4.8 4.8L10 13.6 5.7 16l.8-4.8L3 7.7 7.8 7 10 2.5Z"/></svg>
+              <span class="rating-value">5.0</span>
+              <span class="rating-count">(74)</span>
+            </div>
+            <div class="lawyer-card-meta">
+              <span>15 yrs experience</span>
+              <span>Mombasa</span>
+            </div>
+            <div class="lawyer-card-actions">
+              <button type="button" class="btn btn-secondary btn-sm" data-modal-open="bookConsultationModal">Book</button>
+              <button type="button" class="btn btn-outline btn-sm" data-modal-open="contactAdvocateModal">Message</button>
+            </div>
+          </article>
+        </div>
+        <p class="card-slider-hint" aria-hidden="true">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h12M11 5l5 5-5 5"/></svg>
+          Swipe to see more advocates
+        </p>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         TESTIMONIALS
+         ============================================================ -->
+    <section class="section" id="testimonials" aria-labelledby="testimonialsTitle">
+      <div class="container">
+        <header class="section-header is-centered">
+          <p class="section-eyebrow">Client Stories</p>
+          <h2 class="section-title" id="testimonialsTitle">Trusted by Kenyans abroad</h2>
+          <p class="section-lead">
+            Real outcomes from clients who needed reliable counsel without flying home.
+          </p>
+        </header>
+
+        <div class="card-slider" role="list" aria-label="Client testimonials">
+          <blockquote class="testimonial-card" role="listitem">
+            <p class="testimonial-quote">DLSS helped me resolve a land dispute in Kiambu while I was in London. Clear updates, and my advocate was always reachable.</p>
+            <footer class="testimonial-author">
+              <span class="avatar" aria-hidden="true">JO</span>
+              <div>
+                <p class="testimonial-author-name">James Otieno</p>
+                <p class="testimonial-author-meta">Property matter · United Kingdom</p>
+              </div>
+            </footer>
+          </blockquote>
+
+          <blockquote class="testimonial-card" role="listitem">
+            <p class="testimonial-quote">Registering our family company from Dubai took weeks of back-and-forth before. With DLSS it was organized, documented, and done.</p>
+            <footer class="testimonial-author">
+              <span class="avatar" aria-hidden="true">NM</span>
+              <div>
+                <p class="testimonial-author-name">Njeri Mwangi</p>
+                <p class="testimonial-author-meta">Company registration · UAE</p>
+              </div>
+            </footer>
+          </blockquote>
+
+          <blockquote class="testimonial-card" role="listitem">
+            <p class="testimonial-quote">Succession felt overwhelming from Canada. Grace walked us through every affidavit and court step with patience and clarity.</p>
+            <footer class="testimonial-author">
+              <span class="avatar" aria-hidden="true">PK</span>
+              <div>
+                <p class="testimonial-author-name">Peter Kamau</p>
+                <p class="testimonial-author-meta">Succession · Canada</p>
+              </div>
+            </footer>
+          </blockquote>
+        </div>
+        <p class="card-slider-hint" aria-hidden="true">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h12M11 5l5 5-5 5"/></svg>
+          Swipe to see more stories
+        </p>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         FAQs
+         ============================================================ -->
+    <section class="section section-alt" id="faqs" aria-labelledby="faqsTitle">
+      <div class="container">
+        <header class="section-header is-centered">
+          <p class="section-eyebrow">FAQs</p>
+          <h2 class="section-title" id="faqsTitle">Questions, answered</h2>
+          <p class="section-lead">
+            Common questions about consultations, payments, and working with DLSS advocates.
+          </p>
+        </header>
+
+        <div class="faq-list" data-faq>
+          <div class="faq-item is-open">
+            <button type="button" class="faq-question" id="faq1-btn" aria-expanded="true" aria-controls="faq1-panel">
+              How do I book a consultation?
+              <svg class="faq-chevron" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7.5l5 5 5-5"/></svg>
+            </button>
+            <div class="faq-answer" id="faq1-panel" role="region" aria-labelledby="faq1-btn">
+              <div class="faq-answer-inner">
+                <p>Click <strong>Contact a Lawyer</strong> or <strong>Book Consultation</strong>, choose video, phone, or in-person, pick a time zone, and describe your matter. We’ll confirm once an advocate is assigned.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button type="button" class="faq-question" id="faq2-btn" aria-expanded="false" aria-controls="faq2-panel">
+              Are DLSS lawyers licensed in Kenya?
+              <svg class="faq-chevron" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7.5l5 5 5-5"/></svg>
+            </button>
+            <div class="faq-answer" id="faq2-panel" role="region" aria-labelledby="faq2-btn">
+              <div class="faq-answer-inner">
+                <p>Yes. Every advocate on the platform is verified for practice within the Kenya jurisdiction. Profiles show practice areas, experience, and ratings.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button type="button" class="faq-question" id="faq3-btn" aria-expanded="false" aria-controls="faq3-panel">
+              How do payments work?
+              <svg class="faq-chevron" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7.5l5 5 5-5"/></svg>
+            </button>
+            <div class="faq-answer" id="faq3-panel" role="region" aria-labelledby="faq3-btn">
+              <div class="faq-answer-inner">
+                <p>You’ll receive a clear invoice in your dashboard. Pay via M-Pesa, card, bank transfer, or PayPal. Receipts are emailed automatically.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button type="button" class="faq-question" id="faq4-btn" aria-expanded="false" aria-controls="faq4-panel">
+              Can I join as a lawyer?
+              <svg class="faq-chevron" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7.5l5 5 5-5"/></svg>
+            </button>
+            <div class="faq-answer" id="faq4-panel" role="region" aria-labelledby="faq4-btn">
+              <div class="faq-answer-inner">
+                <p>Yes. Use <strong>Register as a Lawyer</strong> to apply. After verification of your credentials, you can accept consultations and manage clients on DLSS.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button type="button" class="faq-question" id="faq5-btn" aria-expanded="false" aria-controls="faq5-panel">
+              Is my information confidential?
+              <svg class="faq-chevron" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7.5l5 5 5-5"/></svg>
+            </button>
+            <div class="faq-answer" id="faq5-panel" role="region" aria-labelledby="faq5-btn">
+              <div class="faq-answer-inner">
+                <p>Absolutely. Client matters are protected under professional confidentiality. Documents are stored securely and shared only with your assigned advocate.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p style="text-align: center; margin-top: var(--space-8);">
+          <a href="/pages/website/faq.html" class="btn btn-outline">View all FAQs</a>
+        </p>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         CONTACT CTA
+         ============================================================ -->
+    <section class="cta-band" id="contact-cta" aria-labelledby="ctaTitle">
+      <div class="container cta-band-inner">
+        <p class="section-eyebrow">Get Started</p>
+        <h2 class="section-title" id="ctaTitle">Ready to speak with an advocate?</h2>
+        <p class="section-lead">
+          Book a consultation, register as a lawyer, or reach our team — we’re here for the diaspora.
+        </p>
+        <div class="cta-band-actions">
+          <button type="button" class="btn btn-secondary btn-lg" data-modal-open="bookConsultationModal">Book Consultation</button>
+          <a href="/pages/auth/register.html?as=lawyer" class="btn btn-outline-light btn-lg">Register as a Lawyer</a>
+          <a href="/pages/website/contact.html" class="btn btn-outline-light btn-lg">Contact Us</a>
+        </div>
       </div>
     </section>
   </main>
 
   <div data-include="footer"></div>
+  <div data-include="modal"></div>
+  <div data-include="notification"></div>
 
   <script src="/js/componentLoader.js" defer></script>
   <script src="/js/app.js" defer></script>
+  <script src="/js/notifications.js" defer></script>
 </body>
 </html>

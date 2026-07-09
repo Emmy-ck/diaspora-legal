@@ -1195,6 +1195,40 @@ window.DLSS = window.DLSS || {};
   window.DLSS.Pagination = { create: createPagination };
 
   /* ==========================================================================
+     FAQ ACCORDION (marketing pages)
+     ==========================================================================
+     Any container with `data-faq` gets single-open accordion behavior:
+     clicking a `.faq-question` toggles its parent `.faq-item`, closes
+     siblings, and keeps aria-expanded in sync. Works for the homepage
+     FAQ block and any future FAQ page that reuses the same markup. */
+
+  function initFaqs() {
+    document.querySelectorAll('[data-faq]').forEach((list) => {
+      if (list.dataset.faqReady === 'true') return;
+      list.dataset.faqReady = 'true';
+
+      list.addEventListener('click', (event) => {
+        const question = event.target.closest('.faq-question');
+        if (!question || !list.contains(question)) return;
+
+        const item = question.closest('.faq-item');
+        if (!item) return;
+
+        const willOpen = !item.classList.contains('is-open');
+        list.querySelectorAll('.faq-item.is-open').forEach((openItem) => {
+          openItem.classList.remove('is-open');
+          openItem.querySelector('.faq-question')?.setAttribute('aria-expanded', 'false');
+        });
+
+        if (willOpen) {
+          item.classList.add('is-open');
+          question.setAttribute('aria-expanded', 'true');
+        }
+      });
+    });
+  }
+
+  /* ==========================================================================
      BOOTSTRAP
      ========================================================================== */
 
@@ -1217,10 +1251,13 @@ window.DLSS = window.DLSS || {};
     if (document.getElementById('modalRoot') && !document.querySelector('[data-include="modal"]')) {
       initModals();
     }
+
+    initFaqs();
   });
 
   window.DLSS.initNavbar = initNavbar;
   window.DLSS.initFooter = initFooter;
   window.DLSS.initSidebar = initSidebar;
   window.DLSS.initModals = initModals;
+  window.DLSS.initFaqs = initFaqs;
 })();

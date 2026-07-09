@@ -1,0 +1,623 @@
+/* ==========================================================================
+   DLSS — Marketing (Public Website)
+   ==========================================================================
+   Section styles for the public marketing portal (home, about, services,
+   contact, FAQ, …). Depends on variables.css, layout.css, buttons.css,
+   and cards.css. Authored mobile-first — breakpoint overrides live in
+   responsive.css.
+   ========================================================================== */
+
+/* ==========================================================================
+   1. SHARED SECTION CHROME
+   ========================================================================== */
+
+.section-eyebrow {
+  display: inline-block;
+  margin: 0 0 var(--space-3);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wider);
+  text-transform: uppercase;
+  color: var(--color-secondary);
+}
+
+.section-title {
+  margin: 0;
+  font-family: var(--font-family-heading);
+  font-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.5rem);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  color: var(--color-primary);
+}
+
+.section-lead {
+  margin: var(--space-3) 0 0;
+  max-width: 42ch;
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text-muted);
+}
+
+.section-header {
+  margin-bottom: var(--space-10);
+}
+
+.section-header.is-centered {
+  text-align: center;
+}
+
+.section-header.is-centered .section-lead {
+  margin-inline: auto;
+}
+
+.section-header-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+  margin-bottom: var(--space-10);
+}
+
+.section-muted {
+  background-color: var(--color-bg-surface);
+}
+
+.section-alt {
+  background:
+    linear-gradient(180deg, rgba(248, 244, 240, 0.4) 0%, transparent 40%),
+    radial-gradient(ellipse 80% 60% at 100% 0%, rgba(208, 144, 24, 0.08), transparent 55%),
+    var(--color-bg-body);
+}
+
+/* ==========================================================================
+   2. HERO
+   ==========================================================================
+   Compact full-bleed photo plane (not full viewport). Brand (DLSS) is the
+   hero-level signal; one headline, one supporting sentence, one CTA group.
+   Search sits in the navbar — the hero focuses on Book / Register / Contact. */
+
+.hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 22rem;
+  padding-block: var(--space-10);
+  overflow: hidden;
+  background-color: var(--color-primary-900);
+  color: var(--color-text-inverse);
+}
+
+.hero-media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.hero-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 35%;
+  transform: scale(1.02);
+}
+
+.hero-media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      105deg,
+      rgba(4, 15, 27, 0.92) 0%,
+      rgba(10, 35, 64, 0.82) 42%,
+      rgba(10, 35, 64, 0.55) 72%,
+      rgba(10, 35, 64, 0.35) 100%
+    ),
+    linear-gradient(180deg, rgba(4, 15, 27, 0.25) 0%, transparent 35%, rgba(4, 15, 27, 0.45) 100%);
+}
+
+.hero-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 36rem;
+}
+
+.hero-brand {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  animation: hero-fade-up 0.7s ease both;
+}
+
+.hero-brand-mark {
+  font-family: var(--font-family-heading);
+  font-size: clamp(2rem, 1.6rem + 1.8vw, 3rem);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: var(--letter-spacing-tight);
+  color: var(--color-secondary);
+  line-height: 1;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.35);
+}
+
+.hero-brand-name {
+  font-family: var(--font-family-heading);
+  font-size: clamp(1rem, 0.9rem + 0.6vw, 1.35rem);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary-100);
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.hero-title {
+  margin: 0;
+  font-family: var(--font-family-heading);
+  font-size: clamp(1.625rem, 1.3rem + 1.4vw, 2.5rem);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  color: var(--color-text-inverse);
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+  animation: hero-fade-up 0.7s ease 0.1s both;
+}
+
+.hero-lead {
+  margin: var(--space-4) 0 0;
+  max-width: 34ch;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-relaxed);
+  color: rgba(241, 243, 245, 0.9);
+  animation: hero-fade-up 0.7s ease 0.2s both;
+}
+
+.hero-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+  animation: hero-fade-up 0.7s ease 0.3s both;
+}
+
+.hero-actions .btn {
+  width: 100%;
+}
+
+.hero-trust {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-5);
+  margin-top: var(--space-6);
+  padding-top: var(--space-4);
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  font-size: var(--font-size-xs);
+  color: rgba(241, 243, 245, 0.82);
+  animation: hero-fade-up 0.7s ease 0.4s both;
+}
+
+.hero-trust-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.hero-trust-item svg {
+  width: 1rem;
+  height: 1rem;
+  color: var(--color-secondary);
+}
+
+@keyframes hero-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-brand,
+  .hero-title,
+  .hero-lead,
+  .hero-actions,
+  .hero-trust {
+    animation: none;
+  }
+
+  .hero-media img {
+    transform: none;
+  }
+}
+
+/* ==========================================================================
+   3. SERVICES OVERVIEW
+   ========================================================================== */
+
+.service-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: var(--space-6);
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-base), transform var(--transition-base),
+    border-color var(--transition-base);
+}
+
+.service-card:hover {
+  border-color: var(--color-secondary-200);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.service-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: var(--space-5);
+  border-radius: var(--radius-md);
+  background-color: var(--color-secondary-100);
+  color: var(--color-secondary-700);
+}
+
+.service-card-icon svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.service-card-title {
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+}
+
+.service-card-text {
+  margin: 0 0 var(--space-5);
+  flex: 1 1 auto;
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text-muted);
+}
+
+.service-card-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-secondary-700);
+}
+
+.service-card-link:hover {
+  color: var(--color-secondary);
+}
+
+.service-card-link svg {
+  width: 1rem;
+  height: 1rem;
+  transition: transform var(--transition-fast);
+}
+
+.service-card:hover .service-card-link svg {
+  transform: translateX(3px);
+}
+
+/* ==========================================================================
+   4. HOW IT WORKS
+   ========================================================================== */
+
+.steps {
+  display: grid;
+  gap: var(--space-8);
+  counter-reset: step;
+}
+
+.step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-left: var(--space-16);
+}
+
+.step::before {
+  counter-increment: step;
+  content: counter(step, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+  color: var(--color-secondary);
+}
+
+.step-title {
+  margin: 0;
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+}
+
+.step-text {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text-muted);
+}
+
+/* ==========================================================================
+   5. FEATURED LAWYERS
+   ==========================================================================
+   Reuses .lawyer-card from cards.css. On small screens the track is a
+   horizontal snap slider (see .card-slider below); from `md` up
+   responsive.css restores a grid. */
+
+.lawyer-card-avatar.is-initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-primary);
+  color: var(--color-secondary);
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+}
+
+/* Shared mobile snap-slider track (advocates + testimonials). From `md`
+   up, responsive.css restores a 3-column grid and hides the swipe hint. */
+.card-slider {
+  display: flex;
+  gap: var(--space-4);
+  margin-inline: calc(var(--container-padding) * -1);
+  padding-inline: var(--container-padding);
+  padding-bottom: var(--space-2);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--container-padding);
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.card-slider::-webkit-scrollbar {
+  display: none;
+}
+
+.card-slider > .lawyer-card,
+.card-slider > .testimonial-card {
+  flex: 0 0 min(82vw, 20rem);
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+.card-slider-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.card-slider-hint svg {
+  width: 1rem;
+  height: 1rem;
+  animation: card-slider-hint-nudge 1.6s ease-in-out infinite;
+}
+
+@keyframes card-slider-hint-nudge {
+  0%,
+  100% { transform: translateX(0); }
+  50% { transform: translateX(4px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-slider-hint svg {
+    animation: none;
+  }
+}
+
+/* ==========================================================================
+   6. TESTIMONIALS
+   ==========================================================================
+   On small screens the track is a horizontal snap slider (see .card-slider
+   above); from `md` up responsive.css restores a grid. */
+
+.testimonial-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: var(--space-6);
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.testimonial-quote {
+  position: relative;
+  margin: 0 0 var(--space-6);
+  flex: 1 1 auto;
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-md);
+  font-style: italic;
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text-secondary);
+}
+
+.testimonial-quote::before {
+  content: '\201C';
+  display: block;
+  margin-bottom: var(--space-2);
+  font-size: var(--font-size-3xl);
+  font-style: normal;
+  line-height: 1;
+  color: var(--color-secondary);
+}
+
+.testimonial-author {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border-light);
+}
+
+.testimonial-author-name {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+}
+
+.testimonial-author-meta {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+/* ==========================================================================
+   7. FAQ ACCORDION
+   ========================================================================== */
+
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 720px;
+  margin-inline: auto;
+}
+
+.faq-item {
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.faq-item.is-open {
+  border-color: var(--color-secondary-200);
+  box-shadow: var(--shadow-sm);
+}
+
+.faq-question {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  width: 100%;
+  padding: var(--space-5) var(--space-6);
+  border: none;
+  background: transparent;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  text-align: left;
+  color: var(--color-primary);
+  cursor: pointer;
+  transition: color var(--transition-fast);
+}
+
+.faq-question:hover {
+  color: var(--color-secondary-700);
+}
+
+.faq-question:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+.faq-chevron {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--color-text-muted);
+  transition: transform var(--transition-base), color var(--transition-fast);
+}
+
+.faq-item.is-open .faq-chevron {
+  transform: rotate(180deg);
+  color: var(--color-secondary);
+}
+
+.faq-answer {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--transition-base);
+}
+
+.faq-item.is-open .faq-answer {
+  grid-template-rows: 1fr;
+}
+
+.faq-answer-inner {
+  overflow: hidden;
+}
+
+.faq-answer-inner p {
+  margin: 0;
+  padding: 0 var(--space-6) var(--space-5);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text-muted);
+}
+
+/* ==========================================================================
+   8. CONTACT / CTA BAND
+   ========================================================================== */
+
+.cta-band {
+  position: relative;
+  overflow: hidden;
+  padding-block: var(--space-16);
+  background-color: var(--color-primary);
+  color: var(--color-text-inverse);
+  text-align: center;
+}
+
+.cta-band::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 0%, rgba(208, 144, 24, 0.2), transparent 60%);
+  pointer-events: none;
+}
+
+.cta-band-inner {
+  position: relative;
+  z-index: 1;
+}
+
+.cta-band .section-title {
+  color: var(--color-text-inverse);
+}
+
+.cta-band .section-lead {
+  color: var(--color-primary-200);
+  margin-inline: auto;
+}
+
+.cta-band-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-3);
+  max-width: 28rem;
+  margin: var(--space-8) auto 0;
+}
+
+.cta-band-actions .btn {
+  width: 100%;
+}
