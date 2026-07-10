@@ -9,6 +9,8 @@ const Document = require('./Document');
 const Payment = require('./Payment');
 const Notification = require('./Notification');
 const Message = require('./Message');
+const ServiceCategory = require('./ServiceCategory');
+const Service = require('./Service');
 
 // --- User <-> role profiles (1:1) --------------------------------------
 User.hasOne(Lawyer, { foreignKey: 'userId', as: 'lawyerProfile', onDelete: 'CASCADE' });
@@ -65,6 +67,10 @@ Message.belongsTo(User, { foreignKey: 'senderId', as: 'sender' });
 User.hasMany(Message, { foreignKey: 'receiverId', as: 'receivedMessages' });
 Message.belongsTo(User, { foreignKey: 'receiverId', as: 'receiver' });
 
+// --- Marketing services catalog ------------------------------------------
+ServiceCategory.hasMany(Service, { foreignKey: 'categoryId', as: 'services' });
+Service.belongsTo(ServiceCategory, { foreignKey: 'categoryId', as: 'category' });
+
 module.exports = {
   sequelize,
   User,
@@ -76,4 +82,6 @@ module.exports = {
   Payment,
   Notification,
   Message,
+  ServiceCategory,
+  Service,
 };

@@ -1000,6 +1000,16 @@ h4 {
   .about-why-item::before {
     top: 0;
   }
+
+  body[data-page="service-detail"] .steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .contact-layout {
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.85fr);
+    gap: var(--space-12);
+    align-items: start;
+  }
 }
 
 @media (min-width: 992px) {
@@ -1021,5 +1031,16 @@ h4 {
 
   .about-why {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .svc-price-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-8);
+  }
+}
+
+@media (min-width: 1200px) {
+  body[data-page="service-detail"] .steps {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
