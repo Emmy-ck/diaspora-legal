@@ -824,6 +824,40 @@
   max-width: 46rem;
 }
 
+.svc-overview-grid {
+  display: grid;
+  gap: var(--space-10);
+  align-items: start;
+}
+
+.svc-overview-copy .section-header {
+  margin-bottom: var(--space-6);
+}
+
+.svc-feature-media {
+  margin: 0;
+  overflow: hidden;
+  border-radius: var(--radius-lg, 0.75rem);
+  background: var(--color-primary-50);
+  box-shadow: 0 18px 40px rgba(10, 35, 64, 0.08);
+}
+
+.svc-feature-media img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+}
+
+.svc-feature-media figcaption {
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text-muted);
+  border-top: 1px solid var(--color-border-light);
+}
+
 .svc-prose {
   display: grid;
   gap: var(--space-5);
@@ -836,7 +870,10 @@
   color: var(--color-text-secondary);
 }
 
-.svc-req-list {
+.svc-highlight-list,
+.svc-req-list,
+.svc-audience-list,
+.svc-outcome-list {
   margin: 0;
   padding: 0;
   list-style: none;
@@ -844,7 +881,15 @@
   gap: var(--space-3);
 }
 
-.svc-req-list li {
+.svc-highlight-list {
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+.svc-highlight-list li,
+.svc-req-list li,
+.svc-audience-list li,
+.svc-outcome-list li {
   position: relative;
   padding-left: var(--space-7);
   font-size: var(--font-size-sm);
@@ -852,7 +897,10 @@
   color: var(--color-text-secondary);
 }
 
-.svc-req-list li::before {
+.svc-highlight-list li::before,
+.svc-req-list li::before,
+.svc-audience-list li::before,
+.svc-outcome-list li::before {
   content: '';
   position: absolute;
   left: 0;
@@ -861,6 +909,19 @@
   height: 0.55rem;
   border-radius: 50%;
   background-color: var(--color-secondary);
+}
+
+.svc-split-panels {
+  display: grid;
+  gap: var(--space-8);
+}
+
+.svc-panel-title {
+  margin: 0 0 var(--space-4);
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
 }
 
 .svc-price-grid {

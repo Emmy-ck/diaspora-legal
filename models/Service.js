@@ -76,6 +76,33 @@ Service.init(
       type: DataTypes.TEXT,
       allowNull: true,
     },
+    image: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    imageAlt: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    imageCaption: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    highlights: {
+      type: DataTypes.JSON,
+      allowNull: false,
+      defaultValue: [],
+    },
+    whoItsFor: {
+      type: DataTypes.JSON,
+      allowNull: false,
+      defaultValue: [],
+    },
+    outcomes: {
+      type: DataTypes.JSON,
+      allowNull: false,
+      defaultValue: [],
+    },
     legalArea: {
       type: DataTypes.ENUM(
         'immigration',

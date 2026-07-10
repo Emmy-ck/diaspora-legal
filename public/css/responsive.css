@@ -1005,6 +1005,22 @@ h4 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .svc-overview-grid {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    gap: var(--space-12);
+    align-items: center;
+  }
+
+  .svc-highlight-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4) var(--space-8);
+  }
+
+  .svc-split-panels {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-10);
+  }
+
   .contact-layout {
     grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.85fr);
     gap: var(--space-12);

@@ -74,19 +74,101 @@ window.DLSS = window.DLSS || {};
     `;
   }
 
+  function renderListSection(id, eyebrow, title, lead, items, listClass) {
+    if (!items || !items.length) return '';
+    const lis = items.map((item) => `<li>${escapeHtml(item)}</li>`).join('');
+    return `
+      <section class="section" id="${id}" aria-labelledby="${id}-title">
+        <div class="container">
+          <header class="section-header">
+            <p class="section-eyebrow">${escapeHtml(eyebrow)}</p>
+            <h2 class="section-title" id="${id}-title">${escapeHtml(title)}</h2>
+            ${lead ? `<p class="section-lead">${escapeHtml(lead)}</p>` : ''}
+          </header>
+          <ul class="${listClass}">${lis}</ul>
+        </div>
+      </section>
+    `;
+  }
+
   function renderOverview(service) {
     const paragraphs = (service.overview || [])
       .map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`)
       .join('');
+    const imageSrc = service.image || '/images/marketing/hero-bg.jpg';
+    const imageAlt = service.imageAlt || service.title || 'Service illustration';
+    const caption = service.imageCaption || service.navLabel || '';
+    const overviewTitle = service.navLabel || service.breadcrumb || service.title || 'Service overview';
 
     return `
       <section class="section" id="overview" aria-labelledby="svcOverviewTitle">
-        <div class="container svc-detail-narrow">
+        <div class="container">
+          <div class="svc-overview-grid">
+            <div class="svc-overview-copy">
+              <header class="section-header">
+                <p class="section-eyebrow">Overview</p>
+                <h2 class="section-title" id="svcOverviewTitle">${escapeHtml(overviewTitle)}</h2>
+              </header>
+              <div class="svc-prose">${paragraphs}</div>
+            </div>
+            <figure class="svc-feature-media">
+              <img
+                src="${escapeHtml(imageSrc)}"
+                alt="${escapeHtml(imageAlt)}"
+                width="1200"
+                height="800"
+                loading="lazy"
+                decoding="async"
+              />
+              ${caption ? `<figcaption>${escapeHtml(caption)}</figcaption>` : ''}
+            </figure>
+          </div>
+        </div>
+      </section>
+    `;
+  }
+
+  function renderHighlights(service) {
+    return renderListSection(
+      'highlights',
+      'Included',
+      'What this service covers',
+      'Core support you can expect when you engage DLSS for this matter.',
+      service.highlights,
+      'svc-highlight-list'
+    );
+  }
+
+  function renderAudience(service) {
+    const hasWho = service.whoItsFor && service.whoItsFor.length;
+    const hasOutcomes = service.outcomes && service.outcomes.length;
+    if (!hasWho && !hasOutcomes) return '';
+
+    return `
+      <section class="section section-muted" id="fit-outcomes" aria-labelledby="svcFitTitle">
+        <div class="container">
           <header class="section-header">
-            <p class="section-eyebrow">Overview</p>
-            <h2 class="section-title" id="svcOverviewTitle">${escapeHtml(service.overviewTitle || 'Service overview')}</h2>
+            <p class="section-eyebrow">Clarity</p>
+            <h2 class="section-title" id="svcFitTitle">Fit and outcomes</h2>
           </header>
-          <div class="svc-prose">${paragraphs}</div>
+          <div class="svc-split-panels">
+            ${
+              hasWho
+                ? `<div class="svc-panel">
+                    <h3 class="svc-panel-title">Who this is for</h3>
+                    <ul class="svc-audience-list">${service.whoItsFor.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>
+                  </div>`
+                : ''
+            }
+            ${
+              hasOutcomes
+                ? `<div class="svc-panel">
+                    <h3 class="svc-panel-title">What you walk away with</h3>
+                    <ul class="svc-outcome-list">${service.outcomes.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>
+                  </div>`
+                : ''
+            }
+          </div>
         </div>
       </section>
     `;
@@ -107,7 +189,7 @@ window.DLSS = window.DLSS || {};
       .join('');
 
     return `
-      <section class="section section-muted" id="process" aria-labelledby="svcProcessTitle">
+      <section class="section" id="process" aria-labelledby="svcProcessTitle">
         <div class="container">
           <header class="section-header">
             <p class="section-eyebrow">How it works</p>
@@ -126,7 +208,7 @@ window.DLSS = window.DLSS || {};
     const items = requirements.map((item) => `<li>${escapeHtml(item)}</li>`).join('');
 
     return `
-      <section class="section" id="requirements" aria-labelledby="svcReqTitle">
+      <section class="section section-muted" id="requirements" aria-labelledby="svcReqTitle">
         <div class="container svc-detail-narrow">
           <header class="section-header">
             <p class="section-eyebrow">What we need</p>
@@ -154,7 +236,7 @@ window.DLSS = window.DLSS || {};
       .join('');
 
     return `
-      <section class="section section-muted" id="pricing" aria-labelledby="svcPricingTitle">
+      <section class="section" id="pricing" aria-labelledby="svcPricingTitle">
         <div class="container">
           <header class="section-header">
             <p class="section-eyebrow">Fees</p>
@@ -191,7 +273,7 @@ window.DLSS = window.DLSS || {};
       .join('');
 
     return `
-      <section class="section" id="faqs" aria-labelledby="svcFaqTitle">
+      <section class="section section-muted" id="faqs" aria-labelledby="svcFaqTitle">
         <div class="container svc-detail-narrow">
           <header class="section-header">
             <p class="section-eyebrow">FAQs</p>
@@ -225,7 +307,7 @@ window.DLSS = window.DLSS || {};
       .join('');
 
     return `
-      <section class="section section-muted" id="related" aria-labelledby="svcRelatedTitle">
+      <section class="section" id="related" aria-labelledby="svcRelatedTitle">
         <div class="container">
           <header class="section-header">
             <p class="section-eyebrow">Related</p>
@@ -287,6 +369,8 @@ window.DLSS = window.DLSS || {};
       </section>
 
       ${renderOverview(service)}
+      ${renderHighlights(service)}
+      ${renderAudience(service)}
       ${renderProcess(service)}
       ${renderRequirements(service)}
       ${renderPricing(service)}

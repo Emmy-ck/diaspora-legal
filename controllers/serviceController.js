@@ -28,6 +28,12 @@ function serializeService(service) {
     faqs: plain.faqs || [],
     ctaLead: plain.ctaLead,
     cardText: plain.cardText,
+    image: plain.image,
+    imageAlt: plain.imageAlt,
+    imageCaption: plain.imageCaption,
+    highlights: plain.highlights || [],
+    whoItsFor: plain.whoItsFor || [],
+    outcomes: plain.outcomes || [],
     legalArea: plain.legalArea,
     sortOrder: plain.sortOrder,
   };
